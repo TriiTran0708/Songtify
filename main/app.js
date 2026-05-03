@@ -1,455 +1,270 @@
-/* ============================================================
-   SONGTIFY - Web version (HTML/CSS/JS)
-   - Auth (localStorage)
-   - Music player (HTML5 Audio, mp3 lưu IndexedDB qua blob URL)
-   - Search, Like, Rating
-   - AI DJ (Gemini API gọi trực tiếp - cần key)
-   - Audio Manager (clip start/end, metadata)
-   ============================================================ */
+// SoundScape — Vanilla JS edition
+// Uses iTunes Search API (free, CORS-enabled) for 30s preview tracks.
 
-/* ---------- Storage helpers (localStorage) ---------- */
-const LS = {
-  get(k, def) { try { return JSON.parse(localStorage.getItem(k)) ?? def; } catch { return def; } },
-  set(k, v) { localStorage.setItem(k, JSON.stringify(v)); },
-  del(k) { localStorage.removeItem(k); },
-};
-const loadUsers = () => LS.get('songtify.users', {});
-const saveUser = (email, password, name) => {
-  const users = loadUsers();
-  if (users[email]) return false;
-  users[email] = { password, name };
-  LS.set('songtify.users', users);
-  return true;
-};
-const loadLastEmail = () => LS.get('songtify.session', { last_email: '' }).last_email;
-const saveLastEmail = (email) => LS.set('songtify.session', { last_email: email });
-const loadSongData = () => LS.get('songtify.song_data', {});
-const saveSongData = (d) => LS.set('songtify.song_data', d);
-const getApiKey = () => LS.get('songtify.gemini_key', '');
-const setApiKey = (k) => LS.set('songtify.gemini_key', k);
+const MOODS = [
+  { id: 'chill', label: 'Chill', emoji: '😌', tag: 'Drift into purple rain',
+    queries: ['lofi chill', 'chillhop', 'lofi beats', 'chill ambient'] },
+  { id: 'focus', label: 'Focus', emoji: '📚', tag: 'Quiet mind, deep work',
+    queries: ['focus instrumental', 'study music', 'ambient focus', 'piano focus'] },
+  { id: 'hype',  label: 'Hype',  emoji: '🎉', tag: 'Neon nights, loud beats',
+    queries: ['edm party', 'hype hip hop', 'electronic dance', 'pop party'] },
+];
 
-/* ---------- IndexedDB for MP3 blobs ---------- */
-const DB_NAME = 'songtify-db';
-const STORE = 'tracks';
-function openDB() {
-  return new Promise((resolve, reject) => {
-    const req = indexedDB.open(DB_NAME, 1);
-    req.onupgradeneeded = () => req.result.createObjectStore(STORE);
-    req.onsuccess = () => resolve(req.result);
-    req.onerror = () => reject(req.error);
-  });
-}
-async function dbPut(name, blob) {
-  const db = await openDB();
-  return new Promise((res, rej) => {
-    const tx = db.transaction(STORE, 'readwrite');
-    tx.objectStore(STORE).put(blob, name);
-    tx.oncomplete = () => res();
-    tx.onerror = () => rej(tx.error);
-  });
-}
-async function dbGet(name) {
-  const db = await openDB();
-  return new Promise((res, rej) => {
-    const tx = db.transaction(STORE, 'readonly');
-    const r = tx.objectStore(STORE).get(name);
-    r.onsuccess = () => res(r.result || null);
-    r.onerror = () => rej(r.error);
-  });
-}
-async function dbDelete(name) {
-  const db = await openDB();
-  return new Promise((res, rej) => {
-    const tx = db.transaction(STORE, 'readwrite');
-    tx.objectStore(STORE).delete(name);
-    tx.oncomplete = () => res();
-    tx.onerror = () => rej(tx.error);
-  });
-}
-async function dbRename(oldName, newName) {
-  const blob = await dbGet(oldName);
-  if (!blob) return;
-  await dbPut(newName, blob);
-  await dbDelete(oldName);
-}
-async function dbList() {
-  const db = await openDB();
-  return new Promise((res, rej) => {
-    const tx = db.transaction(STORE, 'readonly');
-    const r = tx.objectStore(STORE).getAllKeys();
-    r.onsuccess = () => res(r.result || []);
-    r.onerror = () => rej(r.error);
-  });
-}
+const $ = (sel) => document.querySelector(sel);
+const grid = $('#grid');
+const audio = $('#audio');
 
-/* ---------- DOM refs ---------- */
-const $ = (id) => document.getElementById(id);
-const authScreen = $('authScreen');
-const loginPanel = $('loginPanel');
-const signupPanel = $('signupPanel');
-const mainApp = $('mainApp');
-const audioEl = $('audio');
-
-/* ---------- Toast ---------- */
-function toast(msg, ms = 1800) {
-  const t = $('toast'); t.textContent = msg; t.classList.remove('hidden');
-  clearTimeout(toast._h); toast._h = setTimeout(() => t.classList.add('hidden'), ms);
-}
-
-/* ---------- AUTH wiring ---------- */
-$('goSignup').onclick = () => { loginPanel.classList.add('hidden'); signupPanel.classList.remove('hidden'); };
-$('goLogin').onclick = () => { signupPanel.classList.add('hidden'); loginPanel.classList.remove('hidden'); };
-
-$('btnLogin').onclick = () => {
-  const email = $('loginEmail').value.trim();
-  const pw = $('loginPassword').value;
-  if (!email || !pw) return toast('Please fill in all fields.');
-  const users = loadUsers();
-  if (users[email] && users[email].password === pw) {
-    saveLastEmail(email);
-    enterApp();
-  } else toast('Incorrect email or password.');
-};
-$('btnSignup').onclick = () => {
-  const email = $('signupEmail').value.trim();
-  const pw = $('signupPassword').value;
-  const name = $('signupName').value.trim();
-  if (!email || !pw || !name) return toast('Please fill in all fields.');
-  if (saveUser(email, pw, name)) {
-    toast('Account created! Please log in.');
-    $('goLogin').click();
-  } else toast('This email is already registered.');
-};
-[ 'loginEmail', 'loginPassword' ].forEach(id => $(id).addEventListener('keydown', e => { if (e.key === 'Enter') $('btnLogin').click(); }));
-
-/* Auto-login */
-window.addEventListener('DOMContentLoaded', async () => {
-  const last = loadLastEmail();
-  if (last) {
-    $('loginEmail').value = last;
-    enterApp();
-  }
-});
-
-/* ---------- Enter main app ---------- */
-async function enterApp() {
-  authScreen.classList.add('hidden');
-  mainApp.classList.remove('hidden');
-  // profile
-  const email = loadLastEmail();
-  const u = loadUsers()[email];
-  $('profileName').textContent = u?.name || 'User';
-  $('profileEmail').textContent = `Email: ${email}`;
-  // gemini key
-  $('geminiKey').value = getApiKey();
-  await refreshAll();
-}
-
-/* ---------- Tabs ---------- */
-document.querySelectorAll('.sb-btn[data-tab]').forEach(btn => {
-  btn.onclick = () => switchTab(btn.dataset.tab);
-});
-function switchTab(name) {
-  document.querySelectorAll('.tab').forEach(t => t.classList.toggle('hidden', t.dataset.tab !== name));
-  document.querySelectorAll('.sb-btn').forEach(b => b.classList.toggle('active', b.dataset.tab === name));
-  if (name === 'liked') renderLiked();
-  if (name === 'audio') { refreshSelectors(); }
-}
-
-/* ---------- Logout ---------- */
-$('btnLogout').onclick = () => {
-  saveLastEmail('');
-  audioEl.pause();
-  mainApp.classList.add('hidden');
-  authScreen.classList.remove('hidden');
-  loginPanel.classList.remove('hidden');
-  signupPanel.classList.add('hidden');
-  $('loginPassword').value = '';
+const state = {
+  mood: localStorage.getItem('mood') || 'chill',
+  queue: [],
+  index: 0,
 };
 
-/* ---------- Upload ---------- */
-$('btnUpload').onclick = () => $('fileInput').click();
-$('fileInput').onchange = async (e) => {
-  const file = e.target.files[0];
-  if (!file) return;
-  const name = file.name.toLowerCase().endsWith('.mp3') ? file.name : file.name + '.mp3';
-  await dbPut(name, file);
-  toast('Uploaded!');
-  await refreshAll();
-  e.target.value = '';
-};
-
-/* ---------- Delete song (sidebar quick) ---------- */
-$('btnDeleteSong').onclick = async () => {
-  const files = await dbList();
-  if (!files.length) return toast('No songs.');
-  const name = prompt('Tên bài hát muốn xóa:\n' + files.join('\n'));
-  if (!name) return;
-  if (!files.includes(name)) return toast('Không tìm thấy bài: ' + name);
-  if (!confirm(`Delete ${name}?`)) return;
-  await dbDelete(name);
-  const data = loadSongData(); delete data[name]; saveSongData(data);
-  toast('Deleted.');
-  await refreshAll();
-};
-
-/* ---------- Render songs ---------- */
-async function refreshAll() {
-  await renderHome();
-  renderLiked();
-  refreshSelectors();
-}
-
-async function getFiles() {
-  const list = await dbList();
-  return list.sort();
-}
-
-async function renderHome() {
-  const files = await getFiles();
-  const wrap = $('homeList');
+/* ---------------- Mood UI ---------------- */
+function renderMoods() {
+  const wrap = $('#moodSelector');
   wrap.innerHTML = '';
-  if (!files.length) {
-    wrap.innerHTML = '<p class="muted">No music. Upload some MP3!</p>';
-    return;
-  }
-  const data = loadSongData();
-  files.forEach(name => wrap.appendChild(songItem(name, data[name] || {}, () => renderHome())));
-  filterHome();
-}
-function renderLiked() {
-  const wrap = $('likedList'); wrap.innerHTML = '';
-  const data = loadSongData();
-  const liked = Object.entries(data).filter(([_, d]) => d.liked).map(([n]) => n);
-  if (!liked.length) { wrap.innerHTML = '<p class="muted">No liked songs.</p>'; return; }
-  liked.sort().forEach(name => wrap.appendChild(songItem(name, data[name] || {}, renderLiked)));
-}
-
-function songItem(filename, info, reload) {
-  const el = document.createElement('div');
-  el.className = 'song-item';
-  el.dataset.name = filename;
-  const display = (info.custom_title || filename.replace(/\.mp3$/i, ''));
-  el.innerHTML = `
-    <span class="icon">♫</span>
-    <span class="name">${escapeHTML(display)}</span>
-    <select class="rating">
-      <option value="0">Rate</option>
-      <option value="1">★</option>
-      <option value="2">★★</option>
-      <option value="3">★★★</option>
-      <option value="4">★★★★</option>
-      <option value="5">★★★★★</option>
-    </select>
-    <button class="like ${info.liked ? 'liked' : ''}">${info.liked ? '♥' : '♡'}</button>
-    <button class="play">▶</button>
-  `;
-  const rating = el.querySelector('.rating');
-  rating.value = String(info.rating || 0);
-  rating.onclick = e => e.stopPropagation();
-  rating.onchange = () => {
-    const d = loadSongData(); d[filename] = { ...(d[filename] || {}), rating: Number(rating.value) };
-    saveSongData(d);
-  };
-  const likeBtn = el.querySelector('.like');
-  likeBtn.onclick = (e) => {
-    e.stopPropagation();
-    const d = loadSongData(); d[filename] = { ...(d[filename] || {}), liked: !(d[filename]?.liked) };
-    saveSongData(d); reload && reload();
-  };
-  el.querySelector('.play').onclick = (e) => { e.stopPropagation(); playSong(filename); };
-  el.onclick = () => playSong(filename);
-  return el;
-}
-function escapeHTML(s) { return s.replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
-
-/* ---------- Search filter ---------- */
-$('searchInput').addEventListener('input', filterHome);
-function filterHome() {
-  const q = $('searchInput').value.toLowerCase().trim();
-  document.querySelectorAll('#homeList .song-item').forEach(el => {
-    el.style.display = el.dataset.name.toLowerCase().includes(q) ? '' : 'none';
+  MOODS.forEach((m) => {
+    const btn = document.createElement('button');
+    btn.className = 'mood-btn' + (state.mood === m.id ? ' active' : '');
+    btn.innerHTML = `<span class="emoji">${m.emoji}</span>
+      <span><span class="label">${m.label}</span><br><span class="tag">${m.tag}</span></span>`;
+    btn.onclick = () => setMood(m.id);
+    wrap.appendChild(btn);
   });
 }
 
-/* ---------- Player ---------- */
-let currentSong = null;
-let clipPreviewEnd = null; // seconds
-async function playSong(filename, startSec = 0) {
-  const blob = await dbGet(filename);
-  if (!blob) return toast('File không tìm thấy!');
-  if (audioEl.dataset.url) URL.revokeObjectURL(audioEl.dataset.url);
-  const url = URL.createObjectURL(blob);
-  audioEl.dataset.url = url;
-  audioEl.src = url;
-  audioEl.currentTime = startSec || 0;
-  audioEl.play();
-  $('btnPlay').textContent = '⏸';
-  const info = loadSongData()[filename] || {};
-  $('nowPlaying').textContent = info.custom_title || filename.replace(/\.mp3$/i, '');
-  currentSong = filename;
-  clipPreviewEnd = null;
+function setMood(id) {
+  state.mood = id;
+  localStorage.setItem('mood', id);
+  document.documentElement.setAttribute('data-mood', id);
+  const m = MOODS.find((x) => x.id === id);
+  $('#moodEyebrow').textContent = `Today's vibe · ${m.emoji} ${m.label}`;
+  $('#sectionTitle').textContent = `${m.label} picks`;
+  renderMoods();
+  renderBackground();
+  loadMoodTracks();
 }
-$('btnPlay').onclick = () => {
-  if (!audioEl.src) return;
-  if (audioEl.paused) { audioEl.play(); $('btnPlay').textContent = '⏸'; }
-  else { audioEl.pause(); $('btnPlay').textContent = '▶'; }
-};
-audioEl.addEventListener('timeupdate', () => {
-  const d = audioEl.duration || 0, c = audioEl.currentTime || 0;
-  $('seekBar').max = d || 100;
-  $('seekBar').value = c;
-  $('timeLabel').textContent = `${fmt(c)} / ${fmt(d)}`;
-  if (clipPreviewEnd != null && c >= clipPreviewEnd) {
-    audioEl.pause(); $('btnPlay').textContent = '▶';
-    clipPreviewEnd = null; $('editorStatus').textContent = 'Clip preview finished.';
+
+/* ---------------- Background animations ---------------- */
+function renderBackground() {
+  const bg = $('#bg');
+  bg.innerHTML = '';
+  if (state.mood === 'chill') {
+    for (let i = 0; i < 60; i++) {
+      const d = document.createElement('span');
+      d.className = 'drop';
+      d.style.left = Math.random() * 100 + '%';
+      d.style.animationDuration = (0.8 + Math.random() * 0.8) + 's';
+      d.style.animationDelay = (Math.random() * 1.2) + 's';
+      d.style.opacity = (0.2 + Math.random() * 0.5).toString();
+      bg.appendChild(d);
+    }
+  } else if (state.mood === 'focus') {
+    for (let i = 0; i < 80; i++) {
+      const s = document.createElement('span');
+      s.className = 'star';
+      const sz = Math.random() < 0.9 ? 1 : 2;
+      s.style.width = sz + 'px';
+      s.style.height = sz + 'px';
+      s.style.top = Math.random() * 100 + '%';
+      s.style.left = Math.random() * 100 + '%';
+      s.style.animationDuration = (3 + Math.random() * 4) + 's';
+      s.style.animationDelay = (Math.random() * 4) + 's';
+      bg.appendChild(s);
+    }
+  } else if (state.mood === 'hype') {
+    const colors = ['hsl(320 100% 60% / .6)', 'hsl(60 100% 55% / .5)', 'hsl(180 100% 60% / .4)'];
+    for (let i = 0; i < 4; i++) {
+      const o = document.createElement('span');
+      o.className = 'orb';
+      const sz = 280 + Math.random() * 220;
+      o.style.width = sz + 'px';
+      o.style.height = sz + 'px';
+      o.style.background = colors[i % colors.length];
+      o.style.top = (Math.random() * 80) + '%';
+      o.style.left = (Math.random() * 80) + '%';
+      o.style.animationDelay = i + 's';
+      bg.appendChild(o);
+    }
   }
-});
-audioEl.addEventListener('ended', () => $('btnPlay').textContent = '▶');
-$('seekBar').addEventListener('input', () => { audioEl.currentTime = Number($('seekBar').value); });
-$('volBar').addEventListener('input', () => { audioEl.volume = Number($('volBar').value) / 100; });
-audioEl.volume = 0.7;
-function fmt(s) { s = Math.floor(s || 0); const m = Math.floor(s / 60), r = s % 60; return `${m}:${String(r).padStart(2, '0')}`; }
-
-/* ---------- AI DJ (Gemini direct) ---------- */
-$('saveKey').onclick = () => { setApiKey($('geminiKey').value.trim()); toast('Đã lưu key.'); };
-$('btnSendAI').onclick = sendAI;
-$('chatInput').addEventListener('keydown', e => { if (e.key === 'Enter') sendAI(); });
-
-function appendChat(sender, text, cls) {
-  const div = document.createElement('div'); div.className = 'chat-msg';
-  div.innerHTML = `<b class="${cls}">${sender}:</b> ${escapeHTML(text)}`;
-  $('chatHistory').appendChild(div);
-  $('chatHistory').scrollTop = $('chatHistory').scrollHeight;
-  return div;
 }
 
-async function sendAI() {
-  const prompt = $('chatInput').value.trim();
-  if (!prompt) return;
-  const key = getApiKey();
-  if (!key) return toast('Hãy dán Gemini API Key vào ô phía trên và nhấn Lưu.');
-  appendChat('Bạn', prompt, 'user');
-  $('chatInput').value = '';
-  $('chatInput').disabled = true;
-  const thinking = appendChat('AI DJ', '...đang suy nghĩ...', 'ai');
+/* ---------------- iTunes Search ---------------- */
+async function searchITunes(term, limit = 24) {
+  const url = `https://itunes.apple.com/search?term=${encodeURIComponent(term)}&media=music&limit=${limit}`;
+  const res = await fetch(url);
+  const data = await res.json();
+  return data.results
+    .filter((r) => r.previewUrl)
+    .map((r) => ({
+      id: String(r.trackId),
+      title: r.trackName,
+      artist: r.artistName,
+      artwork: (r.artworkUrl100 || '').replace('100x100', '400x400'),
+      preview: r.previewUrl,
+    }));
+}
 
-  const files = await getFiles();
-  let context = "Bạn là AI DJ của Songtify. Trả lời ngắn gọn bằng tiếng Việt.";
-  if (files.length) context += `\nList nhạc hiện có: [${files.join(', ')}]. Chỉ gợi ý bài trong này khi user hỏi.`;
-  if (currentSong) context += `\nĐang phát: '${currentSong}'.`;
-  const fullPrompt = `${context}\nUser: ${prompt}\nAI:`;
-
+async function loadMoodTracks() {
+  const m = MOODS.find((x) => x.id === state.mood);
+  const q = m.queries[Math.floor(Math.random() * m.queries.length)];
+  renderSkeleton();
   try {
-    const res = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${encodeURIComponent(key)}`,
-      {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ contents: [{ role: 'user', parts: [{ text: fullPrompt }] }] })
-      }
-    );
-    const data = await res.json();
-    if (!res.ok) throw new Error(data?.error?.message || 'Gemini error');
-    const text = data?.candidates?.[0]?.content?.parts?.[0]?.text || '(Không có phản hồi)';
-    thinking.innerHTML = `<b class="ai">AI DJ:</b> ${escapeHTML(text)}`;
-  } catch (err) {
-    thinking.innerHTML = `<b class="ai">AI DJ:</b> Lỗi: ${escapeHTML(err.message)}`;
-  } finally {
-    $('chatInput').disabled = false; $('chatInput').focus();
-    $('chatHistory').scrollTop = $('chatHistory').scrollHeight;
+    const tracks = await searchITunes(q, 24);
+    renderGrid(tracks);
+  } catch (e) {
+    grid.innerHTML = `<p style="color:hsl(var(--muted))">Couldn't load tracks. Try again later.</p>`;
   }
 }
 
-/* ---------- Audio Manager ---------- */
-async function refreshSelectors() {
-  const files = await getFiles();
-  const fill = (sel) => {
-    const cur = sel.value;
-    sel.innerHTML = files.map(f => `<option>${escapeHTML(f)}</option>`).join('');
-    if (files.includes(cur)) sel.value = cur;
-  };
-  fill($('editorSelect'));
-  fill($('manageSelect'));
-  applyClipValues();
-  onManageChange();
-}
-$('editorSelect').onchange = applyClipValues;
-$('manageSelect').onchange = onManageChange;
-
-function applyClipValues() {
-  const f = $('editorSelect').value;
-  const has = !!f;
-  ['clipStart','clipEnd'].forEach(id => $(id).disabled = !has);
-  if (!has) {
-    $('clipStart').value = 0; $('clipEnd').value = 0;
-    $('editorStatus').textContent = 'Upload a track to start editing.';
-    return;
+function renderSkeleton() {
+  grid.innerHTML = '';
+  for (let i = 0; i < 12; i++) {
+    const d = document.createElement('div');
+    d.className = 'card';
+    d.style.aspectRatio = '1/1';
+    d.style.opacity = '.4';
+    grid.appendChild(d);
   }
-  const d = loadSongData()[f] || {};
-  let s = +d.clip_start || 0, e = +d.clip_end || 0;
-  if (e <= s) e = s + 30;
-  $('clipStart').value = s; $('clipEnd').value = e;
-  $('editorStatus').textContent = (d.clip_start != null || d.clip_end != null)
-    ? `Clip range loaded: ${s.toFixed(2)}s - ${e.toFixed(2)}s`
-    : 'Define a new clip range and save it.';
-}
-function onManageChange() {
-  const f = $('manageSelect').value;
-  const has = !!f;
-  ['manageTitle','manageDuration','btnApplyMeta','btnDeleteAudio'].forEach(id => $(id).disabled = !has);
-  if (!has) { $('manageTitle').value=''; $('manageDuration').value=0; $('manageStatus').textContent='Add a track to begin managing audio.'; return; }
-  const base = f.replace(/\.mp3$/i,'');
-  const d = loadSongData()[f] || {};
-  $('manageTitle').value = d.custom_title || base;
-  $('manageDuration').value = +d.custom_duration || 0;
-  $('manageStatus').textContent = `Ready to manage ${base}.`;
 }
 
-$('btnSaveClip').onclick = () => {
-  const f = $('editorSelect').value; if (!f) return toast('Select a track.');
-  const s = +$('clipStart').value, e = +$('clipEnd').value;
-  if (s >= e) return toast('End time must be greater than start.');
-  const d = loadSongData(); d[f] = { ...(d[f]||{}), clip_start: s, clip_end: e };
-  saveSongData(d); $('editorStatus').textContent = `Clip saved: ${s.toFixed(2)}s - ${e.toFixed(2)}s`;
-};
-$('btnPreviewClip').onclick = () => {
-  const f = $('editorSelect').value; if (!f) return toast('Select a track.');
-  const s = +$('clipStart').value, e = +$('clipEnd').value;
-  if (s >= e) return toast('End must be > start.');
-  clipPreviewEnd = e;
-  playSong(f, s);
-  $('editorStatus').textContent = `Previewing clip ${s.toFixed(2)}s - ${e.toFixed(2)}s`;
-};
-$('btnClearClip').onclick = () => {
-  const f = $('editorSelect').value; if (!f) return;
-  const d = loadSongData(); if (d[f]) { delete d[f].clip_start; delete d[f].clip_end; saveSongData(d); }
-  $('editorStatus').textContent = 'Clip data cleared.'; applyClipValues();
-};
+function renderGrid(tracks) {
+  grid.innerHTML = '';
+  tracks.forEach((t, i) => {
+    const c = document.createElement('div');
+    c.className = 'card';
+    c.innerHTML = `
+      <img src="${t.artwork}" alt="${t.title}" loading="lazy" />
+      <div class="play-overlay"><span>▶</span></div>
+      <div class="info">
+        <div class="t">${escapeHtml(t.title)}</div>
+        <div class="a">${escapeHtml(t.artist)}</div>
+      </div>`;
+    c.onclick = () => playFromQueue(tracks, i);
+    grid.appendChild(c);
+  });
+}
 
-$('btnApplyMeta').onclick = async () => {
-  const f = $('manageSelect').value; if (!f) return toast('Select a track.');
-  const newTitle = $('manageTitle').value.trim(); if (!newTitle) return toast('Enter a title.');
-  const newFile = newTitle.toLowerCase().endsWith('.mp3') ? newTitle : `${newTitle}.mp3`;
-  const data = loadSongData();
-  let target = f;
-  if (newFile !== f) {
-    const all = await dbList();
-    if (all.includes(newFile)) return toast('Another track already uses that name.');
-    await dbRename(f, newFile);
-    data[newFile] = data[f] || {}; delete data[f]; target = newFile;
+function escapeHtml(s) {
+  return String(s).replace(/[&<>"']/g, (c) => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c]));
+}
+
+/* ---------------- Player ---------------- */
+function playFromQueue(queue, idx) {
+  state.queue = queue;
+  state.index = idx;
+  const t = queue[idx];
+  audio.src = t.preview;
+  audio.play().catch(() => {});
+  $('#player').classList.remove('hidden');
+  $('#pArt').src = t.artwork;
+  $('#pTitle').textContent = t.title;
+  $('#pArtist').textContent = t.artist;
+}
+
+$('#playBtn').onclick = () => audio.paused ? audio.play() : audio.pause();
+$('#nextBtn').onclick = () => {
+  if (!state.queue.length) return;
+  state.index = (state.index + 1) % state.queue.length;
+  playFromQueue(state.queue, state.index);
+};
+$('#prevBtn').onclick = () => {
+  if (!state.queue.length) return;
+  state.index = (state.index - 1 + state.queue.length) % state.queue.length;
+  playFromQueue(state.queue, state.index);
+};
+audio.addEventListener('play', () => ($('#playBtn').textContent = '⏸'));
+audio.addEventListener('pause', () => ($('#playBtn').textContent = '▶'));
+audio.addEventListener('ended', () => $('#nextBtn').click());
+audio.addEventListener('timeupdate', () => {
+  if (!audio.duration) return;
+  $('#progress').value = (audio.currentTime / audio.duration) * 1000;
+  $('#curTime').textContent = fmt(audio.currentTime);
+  $('#durTime').textContent = fmt(audio.duration);
+});
+$('#progress').oninput = (e) => {
+  if (audio.duration) audio.currentTime = (e.target.value / 1000) * audio.duration;
+};
+$('#volume').oninput = (e) => (audio.volume = e.target.value / 100);
+audio.volume = 0.8;
+
+function fmt(s) {
+  if (!isFinite(s)) return '0:00';
+  const m = Math.floor(s / 60), sec = Math.floor(s % 60).toString().padStart(2, '0');
+  return `${m}:${sec}`;
+}
+
+/* ---------------- Visualizer (Web Audio API) ---------------- */
+let audioCtx, analyser, source;
+function initVisualizer() {
+  if (audioCtx) return;
+  try {
+    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    source = audioCtx.createMediaElementSource(audio);
+    analyser = audioCtx.createAnalyser();
+    analyser.fftSize = 128;
+    source.connect(analyser);
+    analyser.connect(audioCtx.destination);
+  } catch (e) { /* ignore */ }
+}
+audio.addEventListener('play', () => {
+  initVisualizer();
+  if (audioCtx?.state === 'suspended') audioCtx.resume();
+});
+
+const canvas = $('#visualizer');
+const cctx = canvas.getContext('2d');
+function resizeCanvas() {
+  const dpr = window.devicePixelRatio || 1;
+  canvas.width = canvas.clientWidth * dpr;
+  canvas.height = canvas.clientHeight * dpr;
+}
+window.addEventListener('resize', resizeCanvas);
+
+const data = new Uint8Array(64);
+function drawViz() {
+  requestAnimationFrame(drawViz);
+  if (!canvas.clientWidth) return;
+  if (canvas.width !== canvas.clientWidth * (devicePixelRatio || 1)) resizeCanvas();
+  const w = canvas.width, h = canvas.height;
+  cctx.clearRect(0, 0, w, h);
+  if (analyser) analyser.getByteFrequencyData(data);
+  else for (let i = 0; i < 64; i++) data[i] = 0;
+
+  const styles = getComputedStyle(document.documentElement);
+  const primary = styles.getPropertyValue('--primary').trim();
+  const accent = styles.getPropertyValue('--accent').trim();
+  const grad = cctx.createLinearGradient(0, h, 0, 0);
+  grad.addColorStop(0, `hsl(${primary})`);
+  grad.addColorStop(1, `hsl(${accent})`);
+  cctx.fillStyle = grad;
+
+  const bars = 48, gap = 3;
+  const bw = (w - gap * (bars - 1)) / bars;
+  for (let i = 0; i < bars; i++) {
+    const v = data[i] / 255;
+    const bh = Math.max(2, v * h);
+    cctx.fillRect(i * (bw + gap), h - bh, bw, bh);
   }
-  data[target] = { ...(data[target]||{}), custom_title: newTitle, custom_duration: +$('manageDuration').value };
-  saveSongData(data);
-  $('manageStatus').textContent = `Metadata saved for ${newTitle}.`;
-  await refreshAll();
-};
-$('btnDeleteAudio').onclick = async () => {
-  const f = $('manageSelect').value; if (!f) return;
-  if (!confirm(`Delete ${f}?`)) return;
-  await dbDelete(f);
-  const d = loadSongData(); delete d[f]; saveSongData(d);
-  $('manageStatus').textContent = `${f} deleted.`;
-  await refreshAll();
-};
-$('btnUploadAudio').onclick = () => $('fileInput').click();
+}
+drawViz();
+
+/* ---------------- Search form ---------------- */
+$('#searchForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const q = $('#searchInput').value.trim();
+  if (!q) { loadMoodTracks(); return; }
+  $('#sectionTitle').textContent = `Results for "${q}"`;
+  renderSkeleton();
+  try {
+    const tracks = await searchITunes(q, 24);
+    renderGrid(tracks);
+  } catch {}
+});
+
+/* ---------------- Init ---------------- */
+document.documentElement.setAttribute('data-mood', state.mood);
+renderMoods();
+renderBackground();
+setMood(state.mood);
