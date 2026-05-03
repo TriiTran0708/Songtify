@@ -1,0 +1,147 @@
+:root {
+    --bg-black: #000000;
+    --bg-dark: #0a0a0a;
+    --bg-card: #141414;
+    --primary-color: #007bff; /* Xanh dương kiểu mẫu 4 */
+    --accent-red: #8b0000; /* Kiểu mẫu profile */
+    --glass-bg: rgba(20, 20, 20, 0.85);
+}
+
+body {
+    background-color: var(--bg-black);
+    color: white;
+    font-family: 'Inter', 'Segoe UI', sans-serif;
+    overflow: hidden;
+}
+
+/* SIDEBAR MODERN */
+.sidebar-modern {
+    background-color: var(--bg-black);
+    height: 100vh;
+    border-right: 1px solid #1a1a1a;
+}
+.menu-title {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    color: #444;
+    margin-top: 20px;
+    margin-bottom: 10px;
+}
+.nav-link {
+    color: #888;
+    padding: 10px 15px !important;
+    border-radius: 12px;
+    margin-bottom: 5px;
+    transition: 0.3s;
+}
+.nav-link i { margin-right: 12px; }
+.nav-link:hover, .nav-link.active {
+    color: white;
+    background-color: #1a1a1a;
+}
+
+/* TOP BAR */
+.search-box-modern {
+    background: #111;
+    padding: 8px 20px;
+    border-radius: 30px;
+    width: 400px;
+    display: flex;
+    align-items: center;
+}
+.search-box-modern input {
+    background: transparent;
+    border: none;
+    color: white;
+    margin-left: 10px;
+    width: 100%;
+}
+.search-box-modern input:focus { outline: none; }
+
+/* HERO BANNER */
+.hero-banner {
+    background: linear-gradient(135deg, #e63946, #457b9d);
+    overflow: hidden;
+    position: relative;
+}
+
+/* SONG CARDS (Mẫu 1 & 5) */
+.song-card-modern {
+    background: var(--bg-card);
+    border-radius: 20px;
+    padding: 20px;
+    transition: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    cursor: pointer;
+    border: 1px solid transparent;
+}
+.song-card-modern:hover {
+    transform: scale(1.05);
+    background: #1f1f1f;
+    border-color: #333;
+}
+.card-img-wrapper {
+    position: relative;
+    border-radius: 15px;
+    overflow: hidden;
+    aspect-ratio: 1/1;
+}
+.play-hover {
+    position: absolute;
+    top:0; left:0; width:100%; height:100%;
+    background: rgba(0,0,0,0.4);
+    display: flex; align-items: center; justify-content: center;
+    opacity: 0; transition: 0.3s;
+}
+.song-card-modern:hover .play-hover { opacity: 1; }
+
+/* MODERN PLAYER (Glassmorphism) */
+.modern-player {
+    position: fixed;
+    bottom: 0; left: 0; width: 100%;
+    height: 100px;
+    background: var(--glass-bg);
+    backdrop-filter: blur(15px);
+    z-index: 1000;
+}
+.btn-play-main {
+    width: 50px; height: 50px;
+    border-radius: 50%;
+    background: white;
+    border: none;
+    color: black;
+    margin: 0 15px;
+}
+.btn-player-sub { background: transparent; border: none; color: #888; margin: 0 10px; }
+
+/* PROFILE (Mẫu 2) */
+.profile-modern-card {
+    max-width: 450px;
+    background: #2b0d0d;
+    border-radius: 40px;
+    overflow: hidden;
+    box-shadow: 0 30px 60px rgba(0,0,0,0.5);
+}
+.btn-change-photo {
+    position: absolute; bottom: 5px; right: 5px;
+    background: #e63946; color: white;
+    width: 40px; height: 40px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center; cursor: pointer;
+}
+
+/* LOGIN SCREEN */
+.login-overlay {
+    position: fixed; top:0; left:0; width:100%; height:100%;
+    background: radial-gradient(circle at center, #1b2735 0%, #090a0f 100%);
+    display: flex; align-items: center; justify-content: center; z-index: 9999;
+}
+.login-card {
+    background: rgba(255,255,255,0.05);
+    backdrop-filter: blur(20px);
+    padding: 50px; border-radius: 30px; border: 1px solid rgba(255,255,255,0.1);
+}
+.login-input {
+    background: rgba(255,255,255,0.1) !important;
+    border: none !important; color: white !important;
+    border-radius: 12px; padding: 12px 20px;
+}
