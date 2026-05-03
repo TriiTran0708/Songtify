@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 
 ```
 SPCK_DUCTRI_JSB16
@@ -36,3 +37,7 @@ SPCK_DUCTRI_JSB16
 └─ yeucauspck.png
 
 ```
+=======
+# Songtify
+Songtify-For your life
+>>>>>>> c2d2df2dc43e3862d65821afc7fc59fcc2c013dd
