@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Songtify - Music for everyone</title>
+<link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <!-- ================= AUTH ================= -->
+  <div id="authScreen" class="auth-screen">
+    <!-- LOGIN -->
+    <div id="loginPanel" class="auth-panel">
+      <div class="logo-circle">♫</div>
+      <h1 class="title">Log in to Songtify</h1>
+      <label class="field-label">Email or username</label>
+      <input id="loginEmail" type="text" placeholder="Email or username" />
+      <label class="field-label">Password</label>
+      <input id="loginPassword" type="password" placeholder="Password" />
+      <button id="btnLogin" class="btn-green">LOG IN</button>
+      <button class="btn-link-muted">Forgot your password?</button>
+      <div class="auth-footer">
+        <span class="muted">Don't have an account?</span>
+        <button id="goSignup" class="btn-link">Sign up for Songtify</button>
+      </div>
+    </div>
+
+    <!-- SIGNUP -->
+    <div id="signupPanel" class="auth-panel hidden">
+      <div class="logo-circle small">♫</div>
+      <h1 class="title small">Sign up for free to start listening.</h1>
+      <label class="field-label">What's your email?</label>
+      <input id="signupEmail" type="text" placeholder="Enter your email" />
+      <label class="field-label">Create a password</label>
+      <input id="signupPassword" type="password" placeholder="Create a password" />
+      <label class="field-label">What should we call you?</label>
+      <input id="signupName" type="text" placeholder="Enter a profile name" />
+      <button id="btnSignup" class="btn-green">SIGN UP</button>
+      <div class="auth-footer">
+        <span class="muted">Have an account?</span>
+        <button id="goLogin" class="btn-link">Log in</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= MAIN APP ================= -->
+  <div id="mainApp" class="main-app hidden">
+    <aside class="sidebar">
+      <div class="brand">SONGTIFY</div>
+      <button class="sb-btn" data-tab="home">🏠 Home</button>
+      <button class="sb-btn" data-tab="liked">♥ Liked</button>
+      <button class="sb-btn" data-tab="profile">👤 Profile</button>
+      <button class="sb-btn" data-tab="ai">✨ AI DJ</button>
+      <button class="sb-btn" id="btnUpload">☁ Upload</button>
+      <button class="sb-btn" data-tab="audio">🎧 Audio Manager</button>
+      <button class="sb-btn" id="btnDeleteSong">🗑 Delete Song</button>
+      <div class="spacer"></div>
+      <button class="sb-btn" id="btnLogout">🚪 Log Out</button>
+      <input type="file" id="fileInput" accept="audio/mpeg,.mp3" hidden />
+    </aside>
+
+    <main class="content">
+      <!-- HOME -->
+      <section class="tab" data-tab="home">
+        <h2 class="page-title">Good Morning</h2>
+        <input id="searchInput" class="search-input" placeholder="🔍 Tìm bài hát..." />
+        <div id="homeList" class="song-list"></div>
+      </section>
+
+      <!-- LIKED -->
+      <section class="tab hidden" data-tab="liked">
+        <h2 class="page-title green">Liked Songs</h2>
+        <div id="likedList" class="song-list"></div>
+      </section>
+
+      <!-- PROFILE -->
+      <section class="tab hidden" data-tab="profile">
+        <div class="profile">
+          <div class="avatar">👤</div>
+          <h2 id="profileName" class="profile-name">User</h2>
+          <p id="profileEmail" class="profile-email muted"></p>
+        </div>
+      </section>
+
+      <!-- AI DJ -->
+      <section class="tab hidden" data-tab="ai">
+        <h2 class="page-title green">✨ AI DJ Assistant</h2>
+        <p class="muted">Hỏi tôi gợi ý nhạc theo tâm trạng, hoặc thông tin bài hát đang phát!</p>
+        <div class="ai-key-row">
+          <input id="geminiKey" type="password" placeholder="Dán Gemini API Key (lưu trong trình duyệt)" />
+          <button id="saveKey" class="btn-green small">Lưu Key</button>
+        </div>
+        <div id="chatHistory" class="chat-history"></div>
+        <div class="chat-input-row">
+          <input id="chatInput" placeholder="Ví dụ: 'Tôi đang buồn' hoặc 'Bài này của ai?'" />
+          <button id="btnSendAI" class="btn-green">Gửi</button>
+        </div>
+      </section>
+
+      <!-- AUDIO MANAGER -->
+      <section class="tab hidden" data-tab="audio">
+        <h2 class="page-title">Audio Manager</h2>
+        <p class="muted">Create quick clips and manage track metadata within a single panel.</p>
+
+        <h3 class="sub-title">Select a track to edit:</h3>
+        <select id="editorSelect" class="select"></select>
+        <div class="row"><label>Start (seconds):</label><input id="clipStart" type="number" step="0.5" min="0" value="0" /></div>
+        <div class="row"><label>End (seconds):</label><input id="clipEnd" type="number" step="0.5" min="0" value="0" /></div>
+        <div class="btn-row">
+          <button id="btnPreviewClip" class="btn-dark">Preview Clip</button>
+          <button id="btnSaveClip" class="btn-dark">Save Clip</button>
+          <button id="btnClearClip" class="btn-dark">Clear Clip Data</button>
+        </div>
+        <p id="editorStatus" class="status"></p>
+
+        <h3 class="sub-title">Track Metadata</h3>
+        <select id="manageSelect" class="select"></select>
+        <div class="row"><label>Track Title</label><input id="manageTitle" type="text" placeholder="Enter display title" /></div>
+        <div class="row"><label>Duration (seconds)</label><input id="manageDuration" type="number" step="1" min="0" value="0" /></div>
+        <div class="btn-row">
+          <button id="btnApplyMeta" class="btn-dark">Apply Metadata</button>
+          <button id="btnDeleteAudio" class="btn-dark">Delete Audio</button>
+          <button id="btnUploadAudio" class="btn-dark">Upload Audio</button>
+        </div>
+        <p id="manageStatus" class="status"></p>
+      </section>
+    </main>
+
+    <!-- PLAYER BAR -->
+    <footer class="player-bar">
+      <div id="nowPlaying" class="now-playing">No song playing</div>
+      <div class="controls">
+        <button id="btnPlay" class="play-btn">▶</button>
+        <input id="seekBar" class="seek" type="range" min="0" max="100" value="0" />
+        <span id="timeLabel" class="time muted">0:00 / 0:00</span>
+      </div>
+      <div class="vol">
+        <span>🔊</span>
+        <input id="volBar" type="range" min="0" max="100" value="70" />
+      </div>
+      <audio id="audio"></audio>
+    </footer>
+  </div>
+
+  <!-- Modal/Toast -->
+  <div id="toast" class="toast hidden"></div>
+
+<script src="app.js"></script>
+</body>
+</html>
