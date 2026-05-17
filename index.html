@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>SoundScape — Music for your mood</title>
-    <link rel="stylesheet" href="/src/index.css" />
+    <link rel="stylesheet" href="/src/style.css" />
     <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=Inter:wght@400;600&display=swap" rel="stylesheet">
 </head>
 <body>
@@ -21,6 +21,9 @@
         </div>
 
         <div class="nav-actions">
+                                    <!-- Favorites Toggle -->
+                                    <button id="favToggleBtn" class="auth-icon-btn glass" title="Nhạc yêu thích">❤️</button>
+
             <!-- Theme Switcher UI -->
             <label class="theme-switch">
                 <input type="checkbox" id="themeCheckbox" class="theme-switch__checkbox">
@@ -51,14 +54,12 @@
 
     <main>
         <section class="hero">
-            <p id="moodEyebrow" class="eyebrow">Today's vibe · 😌 Chill</p>
             <h1>Drift into the <span class="grad">SoundScape</span></h1>
-            <p class="lede">Pick a mood. Watch the world repaint itself.</p>
-            <div id="moodSelector" class="moods"></div>
+            <p class="lede">Hòa mình vào không gian âm nhạc cùng SoundScape. Khám phá hàng triệu bài hát và lưu lại những giai điệu bạn yêu thích.</p>
         </section>
 
         <section>
-            <h2 id="sectionTitle">Chill picks</h2>
+            <h2 id="sectionTitle">Thịnh hành</h2>
             <div id="grid" class="grid"></div>
         </section>
     </main>
@@ -98,6 +99,7 @@
             </form>
             <div class="modal-footer">
                 <p id="toggleAuthText"></p>
+                <a id="openAuthPage" class="link-small" href="/auth.html">Open full auth page</a>
                 <button id="closeModal" class="link-small">Cancel</button>
             </div>
         </div>

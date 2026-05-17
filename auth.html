@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>SoundScape — Sign in / Sign up</title>
+  <link rel="stylesheet" href="/src/style.css" />
+</head>
+<body>
+  <main class="auth-page">
+    <div class="auth-card glass">
+  <img id="authMeme" class="auth-meme" src="/image/song.jpg" alt="meme" />
+      <h1 id="heading">Welcome</h1>
+      <!-- Uiverse form (preserve ids for JS) -->
+      <form id="authForm" class="form">
+        <span class="input-span">
+          <label for="email" class="label">Email</label>
+          <input type="email" name="email" id="email" required />
+        </span>
+        <span class="input-span">
+          <label for="password" class="label">Password</label>
+          <input type="password" name="password" id="password" required minlength="6" />
+        </span>
+        <p id="error" class="error-text"></p>
+        <span class="span"><a href="#">Forgot password?</a></span>
+        <input id="submitBtn" class="submit" type="submit" value="Sign In" />
+  <p id="switchText" class="muted"></p>
+      </form>
+      <div class="auth-actions">
+        <a id="back" href="/" class="link-small">Back to app</a>
+      </div>
+    </div>
+  </main>
+  <script type="module" src="/src/auth.js"></script>
+</body>
+</html>
