@@ -1,6 +1,0 @@
-{
-  "name": "SoundScape",
-  "description": "A mood-driven music player with reactive themes, visualizers, and user authentication.",
-  "requestFramePermissions": [],
-  "majorCapabilities": []
-}
