@@ -76,6 +76,9 @@ header{position:sticky;top:14px;z-index:30;margin:14px;display:flex;flex-wrap:wr
 .icon-btn{width:42px;height:42px;border-radius:50%;display:grid;place-items:center;border:1px solid var(--border);background:var(--surface);color:var(--muted);cursor:pointer;transition:.2s;flex-shrink:0}
 .icon-btn:hover{color:var(--fg);border-color:var(--border-strong);transform:translateY(-1px)}
 .icon-btn.active{color:#fb7185;border-color:rgba(251,113,133,.5);background:rgba(251,113,133,.12)}
+.fav-count{position:absolute;top:-5px;right:-5px;min-width:18px;height:18px;padding:0 4px;border-radius:99px;background:#fb7185;color:#fff;font-size:10px;font-weight:700;display:grid;place-items:center;pointer-events:none;line-height:1;transition:.2s;transform:scale(0)}
+.fav-count.show{transform:scale(1)}
+#favBtn{position:relative}
 
 /* ============ PROFILE ============ */
 .profile{position:relative}
@@ -180,7 +183,8 @@ section.tracks{margin-top:56px}
   <button class="icon-btn" id="themeBtn" title="Toggle theme" aria-label="Toggle theme"></button>
 
   <button class="icon-btn" id="favBtn" title="Favorites" aria-label="Favorites">
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.29 1.51 4.04 3 5.5l7 7Z"/></svg>
+    <svg id="favBtnIcon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.29 1.51 4.04 3 5.5l7 7Z"/></svg>
+    <span id="favCount" class="fav-count"></span>
   </button>
 
   <div class="profile">
@@ -264,7 +268,24 @@ const loadFavs=()=>{try{return JSON.parse(localStorage.getItem(FAV_KEY)||"[]")}c
 const saveFavs=f=>localStorage.setItem(FAV_KEY,JSON.stringify(f));
 let favs=loadFavs();
 const isFav=id=>favs.some(f=>f.id===id);
-const toggleFav=t=>{favs=isFav(t.id)?favs.filter(f=>f.id!==t.id):[t,...favs];saveFavs(favs);render()};
+function syncFavBtn(){
+  const btn=$("#favBtn");
+  const icon=$("#favBtnIcon");
+  const badge=$("#favCount");
+  const hasFavs=favs.length>0;
+  // Button turns red/active if currently viewing favs OR if there are saved favorites
+  btn.classList.toggle("active", state.showFavs || hasFavs);
+  // Heart fills solid red when there are favorites
+  if(icon){
+    icon.setAttribute("fill", hasFavs ? "currentColor" : "none");
+  }
+  // Badge shows count when there are favorites
+  if(badge){
+    badge.textContent = hasFavs ? favs.length : "";
+    badge.classList.toggle("show", hasFavs);
+  }
+}
+const toggleFav=t=>{favs=isFav(t.id)?favs.filter(f=>f.id!==t.id):[t,...favs];saveFavs(favs);syncFavBtn();render()};
 
 async function fetchTracks(q){
   const r=await fetch(`https://itunes.apple.com/search?term=${encodeURIComponent(q)}&media=music&limit=40`);
@@ -286,7 +307,7 @@ function render(){
   const list=state.showFavs?favs:state.tracks;
   $("#sectionTitle").textContent=state.showFavs?"Your favorites":state.query?`Results · ${state.query}`:`Trending · ${state.mood}`;
   $("#sectionCount").textContent=`${list.length} ${list.length===1?"track":"tracks"}`;
-  $("#favBtn").classList.toggle("active",state.showFavs);
+  syncFavBtn();
   if(!list.length){
     $("#results").innerHTML=`<div class="empty">${state.showFavs?"💔 No favorites yet. Tap the heart on any track to save it here.":"🔍 No tracks found. Try a different search."}</div>`;return;
   }
@@ -353,10 +374,19 @@ const menu=$("#profileMenu");
 $("#avatarBtn").addEventListener("click",e=>{e.stopPropagation();menu.classList.toggle("open");});
 document.addEventListener("click",()=>menu.classList.remove("open"));
 $("#showFavBtn").addEventListener("click",()=>{state.showFavs=true;render();menu.classList.remove("open");});
-$("#signinBtn").addEventListener("click",()=>{alert("Sign-in requires a backend. This is the standalone HTML build — favorites are saved locally on your device.");menu.classList.remove("open");});
+$("#signinBtn").addEventListener("click",()=>{
+  const menu=$("#profileMenu");
+  // Replace sign-in button with a friendly note
+  const note=document.createElement("div");
+  note.style.cssText="padding:10px 12px;font-size:13px;color:var(--muted);line-height:1.5";
+  note.textContent="Favorites are saved locally on your device — no sign-in needed!";
+  document.getElementById("signinBtn").replaceWith(note);
+  setTimeout(()=>menu.classList.remove("open"),2000);
+});
 $("#clearBtn").addEventListener("click",()=>{if(confirm("Clear all favorites?")){favs=[];saveFavs(favs);render();}menu.classList.remove("open");});
 
 syncPlayIcon();
+syncFavBtn();
 load();
 </script>
 </body>
