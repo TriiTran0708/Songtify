@@ -125,10 +125,9 @@ section.tracks{margin-top:56px}
 .card:hover .overlay,.card.playing .overlay{opacity:1}
 .play-btn{width:58px;height:58px;border-radius:50%;border:0;background:var(--gradient-mood);color:#fff;cursor:pointer;display:grid;place-items:center;box-shadow:var(--glow);transition:.2s}
 .play-btn:hover{transform:scale(1.08)}
-.fav-btn{position:absolute;top:12px;right:12px;width:38px;height:38px;border-radius:50%;border:0;background:rgba(0,0,0,.5);backdrop-filter:blur(8px);color:#fff;cursor:pointer;display:grid;place-items:center;transition:.2s;opacity:0;transform:scale(.8)}
-.card:hover .fav-btn,.fav-btn.on{opacity:1;transform:none}
-.fav-btn.on{color:#fb7185}
-.fav-btn:hover{background:rgba(0,0,0,.7);transform:scale(1.08)}
+.fav-btn{position:absolute;top:12px;right:12px;width:38px;height:38px;border-radius:50%;border:0;background:rgba(0,0,0,.5);backdrop-filter:blur(8px);color:#fff;cursor:pointer;display:grid;place-items:center;transition:.2s;opacity:1;transform:none}
+.fav-btn.on{color:#fb7185;background:rgba(0,0,0,.65)}
+.fav-btn:hover{background:rgba(0,0,0,.7);transform:scale(1.12)}
 .meta{padding:14px 16px}
 .meta .t{font-weight:600;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;letter-spacing:-.01em}
 .meta .a{font-size:12px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:3px}
@@ -156,12 +155,34 @@ section.tracks{margin-top:56px}
 .progress{position:absolute;left:18px;right:18px;bottom:8px;height:3px;background:var(--surface-2);border-radius:2px;overflow:hidden;cursor:pointer}
 .progress>div{height:100%;width:0;background:var(--gradient-mood);transition:width .2s linear;border-radius:2px}
 
-@media (max-width:640px){
+/* ============ AUTH MODAL ============ */
+.modal-backdrop{position:fixed;inset:0;z-index:100;background:rgba(0,0,0,.6);backdrop-filter:blur(6px);display:grid;place-items:center;opacity:0;pointer-events:none;transition:opacity .25s}
+.modal-backdrop.open{opacity:1;pointer-events:all}
+.modal{background:var(--bg-2);border:1px solid var(--border-strong);border-radius:24px;padding:36px 32px 32px;width:min(460px,calc(100vw - 40px));position:relative;transform:translateY(20px) scale(.97);transition:transform .25s;box-shadow:0 40px 80px -20px rgba(0,0,0,.5)}
+.modal-backdrop.open .modal{transform:none}
+.modal h2{font-family:'Space Grotesk',sans-serif;font-size:24px;font-weight:700;margin:0 0 6px;letter-spacing:-.02em}
+.modal .modal-sub{color:var(--muted);font-size:14px;margin:0 0 28px}
+.modal-close{position:absolute;top:18px;right:18px;background:var(--surface);border:1px solid var(--border);color:var(--muted);width:32px;height:32px;border-radius:50%;cursor:pointer;display:grid;place-items:center;font-size:18px;line-height:1;transition:.15s}
+.modal-close:hover{color:var(--fg);border-color:var(--border-strong)}
+.modal label{display:block;font-size:11px;font-weight:700;letter-spacing:.08em;color:var(--muted);margin-bottom:8px}
+.modal .field{margin-bottom:18px}
+.modal input[type=email],.modal input[type=password]{width:100%;padding:14px 16px;border-radius:12px;border:1px solid var(--border);background:var(--surface);color:var(--fg);font:inherit;font-size:15px;outline:none;transition:.2s;box-sizing:border-box}
+.modal input:focus{border-color:color-mix(in oklab,var(--primary) 70%,transparent);box-shadow:0 0 0 4px color-mix(in oklab,var(--primary) 16%,transparent)}
+.modal-error{color:#fb7185;font-size:13px;min-height:18px;margin-bottom:10px}
+.btn-primary{width:100%;padding:15px;border-radius:14px;border:0;background:linear-gradient(135deg,var(--primary),var(--accent));color:#fff;font:inherit;font-size:15px;font-weight:700;cursor:pointer;transition:.2s;letter-spacing:.01em}
+.btn-primary:hover{filter:brightness(1.1);transform:translateY(-1px)}
+.btn-primary:active{transform:none}
+.modal-footer{text-align:left;margin-top:20px;font-size:14px;color:var(--muted)}
+.modal-footer button{background:none;border:0;color:var(--primary);font:inherit;font-size:14px;cursor:pointer;padding:0;text-decoration:underline;text-underline-offset:3px}
+/* avatar badge */
+.avatar{position:relative}
+#avatarFavBadge{position:absolute;top:-4px;right:-4px;min-width:18px;height:18px;padding:0 4px;border-radius:99px;background:#fb7185;color:#fff;font-size:10px;font-weight:700;display:grid;place-items:center;pointer-events:none;line-height:1;transition:.2s;transform:scale(0);border:2px solid var(--bg)}
+#avatarFavBadge.show{transform:scale(1)}
   .player .info .a{display:none}
   .search{order:3;flex-basis:100%}
   main{padding:28px 18px 0}
   h1{font-size:38px}
-}
+
 </style>
 </head>
 <body>
@@ -182,21 +203,19 @@ section.tracks{margin-top:56px}
 
   <button class="icon-btn" id="themeBtn" title="Toggle theme" aria-label="Toggle theme"></button>
 
-  <button class="icon-btn" id="favBtn" title="Favorites" aria-label="Favorites">
-    <svg id="favBtnIcon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.29 1.51 4.04 3 5.5l7 7Z"/></svg>
-    <span id="favCount" class="fav-count"></span>
-  </button>
-
   <div class="profile">
-    <button class="avatar" id="avatarBtn" aria-label="Profile"><span id="avatarInit">U</span></button>
+    <button class="avatar" id="avatarBtn" aria-label="Profile">
+      <span id="avatarInit">U</span>
+      <span id="avatarFavBadge"></span>
+    </button>
     <div class="menu glass" id="profileMenu">
       <button id="signinBtn">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg>
         Sign in
       </button>
       <button id="showFavBtn">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.29 1.51 4.04 3 5.5l7 7Z"/></svg>
-        Favorites
+        <svg id="menuFavIcon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.29 1.51 4.04 3 5.5l7 7Z"/></svg>
+        Favorites <span id="menuFavCount" style="margin-left:auto;font-size:11px;background:rgba(251,113,133,.2);color:#fb7185;border-radius:99px;padding:1px 7px;display:none"></span>
       </button>
       <hr/>
       <button id="clearBtn">
@@ -237,6 +256,28 @@ section.tracks{margin-top:56px}
 
 <audio id="audio"></audio>
 
+<!-- AUTH MODAL -->
+<div class="modal-backdrop" id="authBackdrop">
+  <div class="modal glass">
+    <button class="modal-close" id="modalClose" aria-label="Close">×</button>
+    <h2 id="modalTitle">Welcome back</h2>
+    <p class="modal-sub" id="modalSub">Sign in to sync your favorites across devices.</p>
+    <div class="field">
+      <label for="modalEmail">EMAIL</label>
+      <input type="email" id="modalEmail" placeholder="you@soundscape.fm" autocomplete="email" />
+    </div>
+    <div class="field">
+      <label for="modalPass">PASSWORD</label>
+      <input type="password" id="modalPass" placeholder="••••••••" autocomplete="current-password" />
+    </div>
+    <p class="modal-error" id="modalError"></p>
+    <button class="btn-primary" id="modalSubmit">Sign in</button>
+    <p class="modal-footer" id="modalFooter">
+      Don't have an account? <button id="modalToggle">Create account</button>
+    </p>
+  </div>
+</div>
+
 <script>
 const MOOD_Q={chill:"lofi chill",focus:"ambient focus",hype:"dance hits"};
 const state={mood:"chill",query:"",showFavs:false,tracks:[],current:null,playing:false,queue:[]};
@@ -269,23 +310,31 @@ const saveFavs=f=>localStorage.setItem(FAV_KEY,JSON.stringify(f));
 let favs=loadFavs();
 const isFav=id=>favs.some(f=>f.id===id);
 function syncFavBtn(){
-  const btn=$("#favBtn");
-  const icon=$("#favBtnIcon");
-  const badge=$("#favCount");
+  const badge=$("#avatarFavBadge");
+  const menuIcon=$("#menuFavIcon");
+  const menuCount=$("#menuFavCount");
   const hasFavs=favs.length>0;
-  // Button turns red/active if currently viewing favs OR if there are saved favorites
-  btn.classList.toggle("active", state.showFavs || hasFavs);
-  // Heart fills solid red when there are favorites
-  if(icon){
-    icon.setAttribute("fill", hasFavs ? "currentColor" : "none");
-  }
-  // Badge shows count when there are favorites
-  if(badge){
-    badge.textContent = hasFavs ? favs.length : "";
-    badge.classList.toggle("show", hasFavs);
-  }
+  // Avatar badge
+  if(badge){badge.textContent=hasFavs?favs.length:"";badge.classList.toggle("show",hasFavs);}
+  // Menu heart icon fills red when there are favorites
+  if(menuIcon){menuIcon.setAttribute("fill",hasFavs?"#fb7185":"none");menuIcon.setAttribute("stroke",hasFavs?"#fb7185":"currentColor");}
+  // Menu count pill
+  if(menuCount){menuCount.textContent=favs.length;menuCount.style.display=hasFavs?"inline":"none";}
 }
-const toggleFav=t=>{favs=isFav(t.id)?favs.filter(f=>f.id!==t.id):[t,...favs];saveFavs(favs);syncFavBtn();render()};
+const toggleFav=t=>{
+  const already=isFav(t.id);
+  favs=already?favs.filter(f=>f.id!==t.id):[t,...favs];
+  saveFavs(favs);
+  syncFavBtn();
+  if(state.showFavs){render();return;}
+  // update just the button in place — no full re-render flicker
+  document.querySelectorAll(`[data-fav="${t.id}"]`).forEach(btn=>{
+    const now=isFav(t.id);
+    btn.classList.toggle("on",now);
+    const svg=btn.querySelector("svg");
+    if(svg)svg.setAttribute("fill",now?"currentColor":"none");
+  });
+};
 
 async function fetchTracks(q){
   const r=await fetch(`https://itunes.apple.com/search?term=${encodeURIComponent(q)}&media=music&limit=40`);
@@ -365,7 +414,6 @@ $("#moodPicker").addEventListener("click",e=>{
 });
 
 $("#searchForm").addEventListener("submit",e=>{e.preventDefault();state.query=$("#searchInput").value.trim();state.showFavs=false;load();});
-$("#favBtn").addEventListener("click",()=>{state.showFavs=!state.showFavs;render();});
 $("#playBtn").addEventListener("click",()=>{if(!state.current)return;state.playing?audio.pause():audio.play();});
 $("#prevBtn").addEventListener("click",()=>step(-1));
 $("#nextBtn").addEventListener("click",()=>step(1));
@@ -374,16 +422,39 @@ const menu=$("#profileMenu");
 $("#avatarBtn").addEventListener("click",e=>{e.stopPropagation();menu.classList.toggle("open");});
 document.addEventListener("click",()=>menu.classList.remove("open"));
 $("#showFavBtn").addEventListener("click",()=>{state.showFavs=true;render();menu.classList.remove("open");});
-$("#signinBtn").addEventListener("click",()=>{
-  const menu=$("#profileMenu");
-  // Replace sign-in button with a friendly note
-  const note=document.createElement("div");
-  note.style.cssText="padding:10px 12px;font-size:13px;color:var(--muted);line-height:1.5";
-  note.textContent="Favorites are saved locally on your device — no sign-in needed!";
-  document.getElementById("signinBtn").replaceWith(note);
-  setTimeout(()=>menu.classList.remove("open"),2000);
-});
 $("#clearBtn").addEventListener("click",()=>{if(confirm("Clear all favorites?")){favs=[];saveFavs(favs);render();}menu.classList.remove("open");});
+
+/* AUTH MODAL */
+let authMode="signin";
+function openModal(mode){
+  authMode=mode;
+  menu.classList.remove("open");
+  $("#modalTitle").textContent=mode==="signin"?"Welcome back":"Create an account";
+  $("#modalSub").textContent=mode==="signin"?"Sign in to sync your favorites across devices.":"Sign up to save your library to the cloud.";
+  $("#modalSubmit").textContent=mode==="signin"?"Sign in":"Sign up";
+  $("#modalFooter").innerHTML=mode==="signin"
+    ?`Don't have an account? <button id="modalToggle">Create account</button>`
+    :`Have an account? <button id="modalToggle">Sign in</button>`;
+  $("#modalToggle").addEventListener("click",()=>openModal(mode==="signin"?"signup":"signin"));
+  $("#modalError").textContent="";
+  $("#modalEmail").value="";$("#modalPass").value="";
+  $("#authBackdrop").classList.add("open");
+  setTimeout(()=>$("#modalEmail").focus(),100);
+}
+function closeModal(){$("#authBackdrop").classList.remove("open");}
+$("#signinBtn").addEventListener("click",()=>openModal("signin"));
+$("#modalClose").addEventListener("click",closeModal);
+$("#authBackdrop").addEventListener("click",e=>{if(e.target===$("#authBackdrop"))closeModal();});
+document.addEventListener("keydown",e=>{if(e.key==="Escape")closeModal();});
+$("#modalSubmit").addEventListener("click",async()=>{
+  const email=$("#modalEmail").value.trim();
+  const pass=$("#modalPass").value;
+  if(!email||!pass){$("#modalError").textContent="Please fill in all fields.";return;}
+  // No real backend in standalone build — show friendly message
+  $("#modalError").style.color="var(--primary)";
+  $("#modalError").textContent="This is a standalone build — favorites are saved locally on your device!";
+  setTimeout(closeModal,2000);
+});
 
 syncPlayIcon();
 syncFavBtn();
