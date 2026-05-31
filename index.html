@@ -121,11 +121,11 @@ section.tracks{margin-top:56px}
 .card .art-wrap{position:relative;aspect-ratio:1;overflow:hidden}
 .card .art{width:100%;height:100%;display:block;object-fit:cover;background:var(--surface-2);transition:.5s}
 .card:hover .art{transform:scale(1.06)}
-.card .overlay{position:absolute;inset:0;background:linear-gradient(180deg,transparent 40%,rgba(0,0,0,.75));opacity:0;transition:.3s;display:grid;place-items:center}
+.card .overlay{position:absolute;inset:0;background:linear-gradient(180deg,transparent 40%,rgba(0,0,0,.75));opacity:0;transition:.3s;display:grid;place-items:center;z-index:1}
 .card:hover .overlay,.card.playing .overlay{opacity:1}
 .play-btn{width:58px;height:58px;border-radius:50%;border:0;background:var(--gradient-mood);color:#fff;cursor:pointer;display:grid;place-items:center;box-shadow:var(--glow);transition:.2s}
 .play-btn:hover{transform:scale(1.08)}
-.fav-btn{position:absolute;top:12px;right:12px;width:38px;height:38px;border-radius:50%;border:0;background:rgba(0,0,0,.5);backdrop-filter:blur(8px);color:#fff;cursor:pointer;display:grid;place-items:center;transition:.2s;opacity:1;transform:none}
+.fav-btn{position:absolute;top:12px;right:12px;width:38px;height:38px;border-radius:50%;border:0;background:rgba(0,0,0,.5);backdrop-filter:blur(8px);color:#fff;cursor:pointer;display:grid;place-items:center;transition:.2s;opacity:1;transform:none;z-index:2}
 .fav-btn.on{color:#fb7185;background:rgba(0,0,0,.65)}
 .fav-btn:hover{background:rgba(0,0,0,.7);transform:scale(1.12)}
 .meta{padding:14px 16px}
