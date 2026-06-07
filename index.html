@@ -1,558 +1,1668 @@
 <!doctype html>
 <html lang="en" data-mood="chill" data-theme="dark">
-<head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>SoundScape — Music for your mood</title>
-<meta name="description" content="Drift into SoundScape. Discover, preview, and save music tuned to your mood." />
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap">
-<style>
-/* ============ THEME TOKENS ============ */
-html[data-theme="dark"]{
-  --bg:#06050b; --bg-2:#0d0b14;
-  --surface:rgba(255,255,255,.04);
-  --surface-2:rgba(255,255,255,.06);
-  --border:rgba(255,255,255,.08);
-  --border-strong:rgba(255,255,255,.14);
-  --fg:#f4f3fb; --muted:#8e8aa3;
-  --shadow:0 30px 60px -30px rgba(0,0,0,.7);
-  --glass-bg:rgba(15,13,22,.55);
-  --noise-op:.04;
-}
-html[data-theme="light"]{
-  --bg:#f7f5f2; --bg-2:#eeeae3;
-  --surface:rgba(255,255,255,.7);
-  --surface-2:rgba(0,0,0,.04);
-  --border:rgba(15,12,30,.08);
-  --border-strong:rgba(15,12,30,.16);
-  --fg:#15131f; --muted:#6b6678;
-  --shadow:0 30px 60px -30px rgba(60,40,120,.18);
-  --glass-bg:rgba(255,255,255,.6);
-  --noise-op:.025;
-}
-/* ============ MOOD ACCENTS ============ */
-html[data-mood="chill"]{--primary:#a78bfa;--accent:#22d3ee;--gradient-mood:linear-gradient(135deg,#a78bfa,#22d3ee);--glow:0 12px 50px -12px rgba(167,139,250,.55)}
-html[data-mood="focus"]{--primary:#60a5fa;--accent:#34d399;--gradient-mood:linear-gradient(135deg,#60a5fa,#34d399);--glow:0 12px 50px -12px rgba(96,165,250,.55)}
-html[data-mood="hype"] {--primary:#f472b6;--accent:#fb923c;--gradient-mood:linear-gradient(135deg,#f472b6,#fb923c);--glow:0 12px 50px -12px rgba(244,114,182,.6)}
-html[data-theme="light"][data-mood="chill"]{--primary:#7c5cf5;--accent:#0ea5b7}
-html[data-theme="light"][data-mood="focus"]{--primary:#3b82f6;--accent:#059669}
-html[data-theme="light"][data-mood="hype"] {--primary:#db2777;--accent:#ea580c}
-.rose{color:#fb7185}
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>SoundScape — Music for your mood</title>
+    <meta
+      name="description"
+      content="Drift into SoundScape. Discover, preview, and save music tuned to your mood."
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap"
+    />
+    <style>
+      /* ============ THEME TOKENS ============ */
+      html[data-theme="dark"] {
+        --bg: #06050b;
+        --bg-2: #0d0b14;
+        --surface: rgba(255, 255, 255, 0.04);
+        --surface-2: rgba(255, 255, 255, 0.06);
+        --border: rgba(255, 255, 255, 0.08);
+        --border-strong: rgba(255, 255, 255, 0.14);
+        --fg: #f4f3fb;
+        --muted: #8e8aa3;
+        --shadow: 0 30px 60px -30px rgba(0, 0, 0, 0.7);
+        --glass-bg: rgba(15, 13, 22, 0.55);
+        --noise-op: 0.04;
+      }
+      html[data-theme="light"] {
+        --bg: #f7f5f2;
+        --bg-2: #eeeae3;
+        --surface: rgba(255, 255, 255, 0.7);
+        --surface-2: rgba(0, 0, 0, 0.04);
+        --border: rgba(15, 12, 30, 0.08);
+        --border-strong: rgba(15, 12, 30, 0.16);
+        --fg: #15131f;
+        --muted: #6b6678;
+        --shadow: 0 30px 60px -30px rgba(60, 40, 120, 0.18);
+        --glass-bg: rgba(255, 255, 255, 0.6);
+        --noise-op: 0.025;
+      }
+      /* ============ MOOD ACCENTS ============ */
+      html[data-mood="chill"] {
+        --primary: #a78bfa;
+        --accent: #22d3ee;
+        --gradient-mood: linear-gradient(135deg, #a78bfa, #22d3ee);
+        --glow: 0 12px 50px -12px rgba(167, 139, 250, 0.55);
+      }
+      html[data-mood="focus"] {
+        --primary: #60a5fa;
+        --accent: #34d399;
+        --gradient-mood: linear-gradient(135deg, #60a5fa, #34d399);
+        --glow: 0 12px 50px -12px rgba(96, 165, 250, 0.55);
+      }
+      html[data-mood="hype"] {
+        --primary: #f472b6;
+        --accent: #fb923c;
+        --gradient-mood: linear-gradient(135deg, #f472b6, #fb923c);
+        --glow: 0 12px 50px -12px rgba(244, 114, 182, 0.6);
+      }
+      html[data-theme="light"][data-mood="chill"] {
+        --primary: #7c5cf5;
+        --accent: #0ea5b7;
+      }
+      html[data-theme="light"][data-mood="focus"] {
+        --primary: #3b82f6;
+        --accent: #059669;
+      }
+      html[data-theme="light"][data-mood="hype"] {
+        --primary: #db2777;
+        --accent: #ea580c;
+      }
+      .rose {
+        color: #fb7185;
+      }
 
-*{box-sizing:border-box}
-::selection{background:var(--primary);color:#fff}
-html,body{margin:0;padding:0;background:var(--bg);color:var(--fg);font-family:'Inter',system-ui,sans-serif;min-height:100vh;transition:background .4s,color .4s}
-body{padding-bottom:170px;overflow-x:hidden;position:relative}
-body::before{content:"";position:fixed;inset:0;background:radial-gradient(1200px 600px at 10% -10%,color-mix(in oklab,var(--primary) 20%,transparent),transparent 60%),radial-gradient(900px 500px at 110% 20%,color-mix(in oklab,var(--accent) 18%,transparent),transparent 60%),linear-gradient(180deg,var(--bg),var(--bg-2));z-index:-2;transition:.4s}
-body::after{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;opacity:var(--noise-op);background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='200' height='200'><filter id='n'><feTurbulence baseFrequency='.9'/></filter><rect width='100%' height='100%' filter='url(%23n)' opacity='.55'/></svg>")}
+      * {
+        box-sizing: border-box;
+      }
+      ::selection {
+        background: var(--primary);
+        color: #fff;
+      }
+      html,
+      body {
+        margin: 0;
+        padding: 0;
+        background: var(--bg);
+        color: var(--fg);
+        font-family: "Inter", system-ui, sans-serif;
+        min-height: 100vh;
+        transition:
+          background 0.4s,
+          color 0.4s;
+      }
+      body {
+        padding-bottom: 170px;
+        overflow-x: hidden;
+        position: relative;
+      }
+      body::before {
+        content: "";
+        position: fixed;
+        inset: 0;
+        background:
+          radial-gradient(
+            1200px 600px at 10% -10%,
+            color-mix(in oklab, var(--primary) 20%, transparent),
+            transparent 60%
+          ),
+          radial-gradient(
+            900px 500px at 110% 20%,
+            color-mix(in oklab, var(--accent) 18%, transparent),
+            transparent 60%
+          ),
+          linear-gradient(180deg, var(--bg), var(--bg-2));
+        z-index: -2;
+        transition: 0.4s;
+      }
+      body::after {
+        content: "";
+        position: fixed;
+        inset: 0;
+        z-index: -1;
+        pointer-events: none;
+        opacity: var(--noise-op);
+        background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='200' height='200'><filter id='n'><feTurbulence baseFrequency='.9'/></filter><rect width='100%' height='100%' filter='url(%23n)' opacity='.55'/></svg>");
+      }
 
-/* ============ AURORA ============ */
-.aurora{position:fixed;inset:0;z-index:-1;overflow:hidden;pointer-events:none}
-.aurora i{position:absolute;border-radius:50%;filter:blur(110px);opacity:.55;animation:float 22s ease-in-out infinite}
-.aurora i:nth-child(1){width:520px;height:520px;left:-140px;top:30px;background:var(--gradient-mood)}
-.aurora i:nth-child(2){width:580px;height:580px;right:-180px;top:25%;background:radial-gradient(closest-side,var(--accent),transparent);animation-delay:-7s;opacity:.5}
-.aurora i:nth-child(3){width:460px;height:460px;bottom:-200px;left:28%;background:radial-gradient(closest-side,var(--primary),transparent);animation-delay:-14s;opacity:.45}
-@keyframes float{0%,100%{transform:translate(0,0) scale(1)}50%{transform:translate(40px,-30px) scale(1.1)}}
+      /* ============ AURORA ============ */
+      .aurora {
+        position: fixed;
+        inset: 0;
+        z-index: -1;
+        overflow: hidden;
+        pointer-events: none;
+      }
+      .aurora i {
+        position: absolute;
+        border-radius: 50%;
+        filter: blur(110px);
+        opacity: 0.55;
+        animation: float 22s ease-in-out infinite;
+      }
+      .aurora i:nth-child(1) {
+        width: 520px;
+        height: 520px;
+        left: -140px;
+        top: 30px;
+        background: var(--gradient-mood);
+      }
+      .aurora i:nth-child(2) {
+        width: 580px;
+        height: 580px;
+        right: -180px;
+        top: 25%;
+        background: radial-gradient(closest-side, var(--accent), transparent);
+        animation-delay: -7s;
+        opacity: 0.5;
+      }
+      .aurora i:nth-child(3) {
+        width: 460px;
+        height: 460px;
+        bottom: -200px;
+        left: 28%;
+        background: radial-gradient(closest-side, var(--primary), transparent);
+        animation-delay: -14s;
+        opacity: 0.45;
+      }
+      @keyframes float {
+        0%,
+        100% {
+          transform: translate(0, 0) scale(1);
+        }
+        50% {
+          transform: translate(40px, -30px) scale(1.1);
+        }
+      }
 
-/* ============ GLASS ============ */
-.glass{background:var(--glass-bg);backdrop-filter:blur(24px) saturate(140%);-webkit-backdrop-filter:blur(24px) saturate(140%);border:1px solid var(--border);box-shadow:var(--shadow)}
+      /* ============ GLASS ============ */
+      .glass {
+        background: var(--glass-bg);
+        backdrop-filter: blur(24px) saturate(140%);
+        -webkit-backdrop-filter: blur(24px) saturate(140%);
+        border: 1px solid var(--border);
+        box-shadow: var(--shadow);
+      }
 
-/* ============ HEADER ============ */
-header{position:sticky;top:14px;z-index:30;margin:14px;display:flex;flex-wrap:wrap;align-items:center;gap:12px;padding:12px 18px;border-radius:20px}
-.logo{display:flex;align-items:center;gap:10px;font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:18px;letter-spacing:-.01em}
-.logo .badge{width:40px;height:40px;border-radius:13px;display:grid;place-items:center;background:var(--gradient-mood);box-shadow:var(--glow);color:#fff;transition:.3s}
-.logo .badge:hover{transform:rotate(-6deg) scale(1.05)}
-.text-grad{background:var(--gradient-mood);-webkit-background-clip:text;background-clip:text;color:transparent}
+      /* ============ HEADER ============ */
+      header {
+        position: sticky;
+        top: 14px;
+        z-index: 30;
+        margin: 14px;
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 12px;
+        padding: 12px 18px;
+        border-radius: 20px;
+      }
+      .logo {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-family: "Space Grotesk", sans-serif;
+        font-weight: 700;
+        font-size: 18px;
+        letter-spacing: -0.01em;
+      }
+      .logo .badge {
+        width: 40px;
+        height: 40px;
+        border-radius: 13px;
+        display: grid;
+        place-items: center;
+        background: var(--gradient-mood);
+        box-shadow: var(--glow);
+        color: #fff;
+        transition: 0.3s;
+      }
+      .logo .badge:hover {
+        transform: rotate(-6deg) scale(1.05);
+      }
+      .text-grad {
+        background: var(--gradient-mood);
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+      }
 
-/* ============ SEARCH ============ */
-.search{flex:1;min-width:220px;display:flex;align-items:center;gap:8px;padding:11px 14px;border-radius:14px;border:1px solid var(--border);background:var(--surface);transition:.25s}
-.search:focus-within{border-color:color-mix(in oklab,var(--primary) 60%,transparent);box-shadow:0 0 0 4px color-mix(in oklab,var(--primary) 14%,transparent)}
-.search input{flex:1;background:transparent;border:0;outline:0;color:var(--fg);font-size:14px;font-family:inherit}
-.search input::placeholder{color:var(--muted)}
+      /* ============ SEARCH ============ */
+      .search {
+        flex: 1;
+        min-width: 220px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 11px 14px;
+        border-radius: 14px;
+        border: 1px solid var(--border);
+        background: var(--surface);
+        transition: 0.25s;
+      }
+      .search:focus-within {
+        border-color: color-mix(in oklab, var(--primary) 60%, transparent);
+        box-shadow: 0 0 0 4px
+          color-mix(in oklab, var(--primary) 14%, transparent);
+      }
+      .search input {
+        flex: 1;
+        background: transparent;
+        border: 0;
+        outline: 0;
+        color: var(--fg);
+        font-size: 14px;
+        font-family: inherit;
+      }
+      .search input::placeholder {
+        color: var(--muted);
+      }
 
-/* ============ ICON BUTTONS ============ */
-.icon-btn{width:42px;height:42px;border-radius:50%;display:grid;place-items:center;border:1px solid var(--border);background:var(--surface);color:var(--muted);cursor:pointer;transition:.2s;flex-shrink:0}
-.icon-btn:hover{color:var(--fg);border-color:var(--border-strong);transform:translateY(-1px)}
-.icon-btn.active{color:#fb7185;border-color:rgba(251,113,133,.5);background:rgba(251,113,133,.12)}
-.fav-count{position:absolute;top:-5px;right:-5px;min-width:18px;height:18px;padding:0 4px;border-radius:99px;background:#fb7185;color:#fff;font-size:10px;font-weight:700;display:grid;place-items:center;pointer-events:none;line-height:1;transition:.2s;transform:scale(0)}
-.fav-count.show{transform:scale(1)}
-#favBtn{position:relative}
+      /* ============ ICON BUTTONS ============ */
+      .icon-btn {
+        width: 42px;
+        height: 42px;
+        border-radius: 50%;
+        display: grid;
+        place-items: center;
+        border: 1px solid var(--border);
+        background: var(--surface);
+        color: var(--muted);
+        cursor: pointer;
+        transition: 0.2s;
+        flex-shrink: 0;
+      }
+      .icon-btn:hover {
+        color: var(--fg);
+        border-color: var(--border-strong);
+        transform: translateY(-1px);
+      }
+      .icon-btn.active {
+        color: #fb7185;
+        border-color: rgba(251, 113, 133, 0.5);
+        background: rgba(251, 113, 133, 0.12);
+      }
+      .fav-count {
+        position: absolute;
+        top: -5px;
+        right: -5px;
+        min-width: 18px;
+        height: 18px;
+        padding: 0 4px;
+        border-radius: 99px;
+        background: #fb7185;
+        color: #fff;
+        font-size: 10px;
+        font-weight: 700;
+        display: grid;
+        place-items: center;
+        pointer-events: none;
+        line-height: 1;
+        transition: 0.2s;
+        transform: scale(0);
+      }
+      .fav-count.show {
+        transform: scale(1);
+      }
+      #favBtn {
+        position: relative;
+      }
 
-/* ============ PROFILE ============ */
-.profile{position:relative}
-.avatar{width:42px;height:42px;border-radius:50%;cursor:pointer;padding:2px;background:var(--gradient-mood);box-shadow:var(--glow);border:0;transition:.25s}
-.avatar:hover{transform:scale(1.05)}
-.avatar>span{width:100%;height:100%;border-radius:50%;background:var(--bg);display:grid;place-items:center;color:var(--fg);font-weight:600;font-size:14px}
-.menu{position:absolute;right:0;top:54px;width:240px;border-radius:16px;padding:8px;display:none;animation:pop .18s ease-out}
-.menu.open{display:block}
-@keyframes pop{from{opacity:0;transform:translateY(-6px) scale(.96)}to{opacity:1;transform:none}}
-.menu button{width:100%;text-align:left;padding:11px 12px;border-radius:11px;background:transparent;border:0;color:var(--fg);font:inherit;font-size:14px;cursor:pointer;display:flex;align-items:center;gap:10px;transition:.15s}
-.menu button:hover{background:var(--surface-2)}
-.menu hr{border:0;border-top:1px solid var(--border);margin:5px 4px}
+      /* ============ PROFILE ============ */
+      .profile {
+        position: relative;
+      }
+      .avatar {
+        width: 42px;
+        height: 42px;
+        border-radius: 50%;
+        cursor: pointer;
+        padding: 2px;
+        background: var(--gradient-mood);
+        box-shadow: var(--glow);
+        border: 0;
+        transition: 0.25s;
+      }
+      .avatar:hover {
+        transform: scale(1.05);
+      }
+      .avatar > span {
+        width: 100%;
+        height: 100%;
+        border-radius: 50%;
+        background: var(--bg);
+        display: grid;
+        place-items: center;
+        color: var(--fg);
+        font-weight: 600;
+        font-size: 14px;
+      }
+      .menu {
+        position: absolute;
+        right: 0;
+        top: 54px;
+        width: 240px;
+        border-radius: 16px;
+        padding: 8px;
+        display: none;
+        animation: pop 0.18s ease-out;
+      }
+      .menu.open {
+        display: block;
+      }
+      @keyframes pop {
+        from {
+          opacity: 0;
+          transform: translateY(-6px) scale(0.96);
+        }
+        to {
+          opacity: 1;
+          transform: none;
+        }
+      }
+      .menu button {
+        width: 100%;
+        text-align: left;
+        padding: 11px 12px;
+        border-radius: 11px;
+        background: transparent;
+        border: 0;
+        color: var(--fg);
+        font: inherit;
+        font-size: 14px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        transition: 0.15s;
+      }
+      .menu button:hover {
+        background: var(--surface-2);
+      }
+      .menu hr {
+        border: 0;
+        border-top: 1px solid var(--border);
+        margin: 5px 4px;
+      }
 
-/* ============ MAIN ============ */
-main{max-width:1280px;margin:0 auto;padding:40px 28px 0}
-.eyebrow{display:inline-flex;align-items:center;gap:8px;padding:7px 14px;border-radius:999px;border:1px solid var(--border);background:var(--surface);font-size:12px;color:var(--muted);font-weight:500}
-.eyebrow .dot{width:6px;height:6px;border-radius:50%;background:var(--primary);box-shadow:0 0 12px var(--primary);animation:pulse 2s ease-in-out infinite}
-@keyframes pulse{50%{opacity:.4}}
-h1{font-family:'Space Grotesk',sans-serif;font-size:clamp(38px,6vw,72px);font-weight:700;line-height:1.02;margin:20px 0 16px;letter-spacing:-.025em}
-.sub{color:var(--muted);font-size:16px;max-width:580px;margin:0;line-height:1.55}
+      /* ============ MAIN ============ */
+      main {
+        max-width: 1280px;
+        margin: 0 auto;
+        padding: 40px 28px 0;
+      }
+      .eyebrow {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 7px 14px;
+        border-radius: 999px;
+        border: 1px solid var(--border);
+        background: var(--surface);
+        font-size: 12px;
+        color: var(--muted);
+        font-weight: 500;
+      }
+      .eyebrow .dot {
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background: var(--primary);
+        box-shadow: 0 0 12px var(--primary);
+        animation: pulse 2s ease-in-out infinite;
+      }
+      @keyframes pulse {
+        50% {
+          opacity: 0.4;
+        }
+      }
+      h1 {
+        font-family: "Space Grotesk", sans-serif;
+        font-size: clamp(38px, 6vw, 72px);
+        font-weight: 700;
+        line-height: 1.02;
+        margin: 20px 0 16px;
+        letter-spacing: -0.025em;
+      }
+      .sub {
+        color: var(--muted);
+        font-size: 16px;
+        max-width: 580px;
+        margin: 0;
+        line-height: 1.55;
+      }
 
-/* ============ MOOD PICKER ============ */
-.mood{display:inline-flex;gap:4px;padding:6px;border-radius:18px;margin-top:28px}
-.mood button{display:flex;align-items:center;gap:8px;padding:11px 16px;border-radius:13px;border:0;background:transparent;color:var(--muted);font:inherit;font-size:14px;font-weight:500;cursor:pointer;transition:.3s;position:relative}
-.mood button:hover{color:var(--fg)}
-.mood button.active{color:#fff;background:var(--gradient-mood);box-shadow:var(--glow);transform:translateY(-1px)}
-html[data-theme="light"] .mood button.active{color:#fff}
+      /* ============ MOOD PICKER ============ */
+      .mood {
+        display: inline-flex;
+        gap: 4px;
+        padding: 6px;
+        border-radius: 18px;
+        margin-top: 28px;
+      }
+      .mood button {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 11px 16px;
+        border-radius: 13px;
+        border: 0;
+        background: transparent;
+        color: var(--muted);
+        font: inherit;
+        font-size: 14px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: 0.3s;
+        position: relative;
+      }
+      .mood button:hover {
+        color: var(--fg);
+      }
+      .mood button.active {
+        color: #fff;
+        background: var(--gradient-mood);
+        box-shadow: var(--glow);
+        transform: translateY(-1px);
+      }
+      html[data-theme="light"] .mood button.active {
+        color: #fff;
+      }
 
-/* ============ SECTION ============ */
-section.tracks{margin-top:56px}
-.section-head{display:flex;align-items:end;justify-content:space-between;margin-bottom:22px;gap:12px}
-.section-head h2{font-family:'Space Grotesk',sans-serif;font-size:24px;margin:0;letter-spacing:-.015em}
-.section-head span{font-size:12px;color:var(--muted);font-variant-numeric:tabular-nums}
+      /* ============ SECTION ============ */
+      section.tracks {
+        margin-top: 56px;
+      }
+      .section-head {
+        display: flex;
+        align-items: end;
+        justify-content: space-between;
+        margin-bottom: 22px;
+        gap: 12px;
+      }
+      .section-head h2 {
+        font-family: "Space Grotesk", sans-serif;
+        font-size: 24px;
+        margin: 0;
+        letter-spacing: -0.015em;
+      }
+      .section-head span {
+        font-size: 12px;
+        color: var(--muted);
+        font-variant-numeric: tabular-nums;
+      }
 
-/* ============ GRID & CARDS ============ */
-.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:20px}
-.card{position:relative;border-radius:20px;overflow:hidden;background:var(--surface);border:1px solid var(--border);transition:.3s cubic-bezier(.2,.7,.2,1);cursor:pointer;animation:rise .5s both}
-.card:hover{transform:translateY(-6px);border-color:color-mix(in oklab,var(--primary) 50%,var(--border));box-shadow:0 24px 50px -22px color-mix(in oklab,var(--primary) 40%,#000)}
-@keyframes rise{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
-.card .art-wrap{position:relative;aspect-ratio:1;overflow:hidden}
-.card .art{width:100%;height:100%;display:block;object-fit:cover;background:var(--surface-2);transition:.5s}
-.card:hover .art{transform:scale(1.06)}
-.card .overlay{position:absolute;inset:0;background:linear-gradient(180deg,transparent 40%,rgba(0,0,0,.75));opacity:0;transition:.3s;display:grid;place-items:center;z-index:1}
-.card:hover .overlay,.card.playing .overlay{opacity:1}
-.play-btn{width:58px;height:58px;border-radius:50%;border:0;background:var(--gradient-mood);color:#fff;cursor:pointer;display:grid;place-items:center;box-shadow:var(--glow);transition:.2s}
-.play-btn:hover{transform:scale(1.08)}
-.fav-btn{position:absolute;top:12px;right:12px;width:38px;height:38px;border-radius:50%;border:0;background:rgba(0,0,0,.5);backdrop-filter:blur(8px);color:#fff;cursor:pointer;display:grid;place-items:center;transition:.2s;opacity:1;transform:none;z-index:2}
-.fav-btn.on{color:#fb7185;background:rgba(0,0,0,.65)}
-.fav-btn:hover{background:rgba(0,0,0,.7);transform:scale(1.12)}
-.meta{padding:14px 16px}
-.meta .t{font-weight:600;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;letter-spacing:-.01em}
-.meta .a{font-size:12px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:3px}
-.empty{padding:80px 24px;text-align:center;color:var(--muted);font-size:14px;border:1px dashed var(--border-strong);border-radius:20px;background:var(--surface);grid-column:1/-1}
-.skeleton{aspect-ratio:1;border-radius:20px;background:linear-gradient(90deg,var(--surface),var(--surface-2),var(--surface));background-size:200% 100%;animation:sh 1.4s linear infinite}
-@keyframes sh{0%{background-position:200% 0}100%{background-position:-200% 0}}
+      /* ============ GRID & CARDS ============ */
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+        gap: 20px;
+      }
+      .card {
+        position: relative;
+        border-radius: 20px;
+        overflow: hidden;
+        background: var(--surface);
+        border: 1px solid var(--border);
+        transition: 0.3s cubic-bezier(0.2, 0.7, 0.2, 1);
+        cursor: pointer;
+        animation: rise 0.5s both;
+      }
+      .card:hover {
+        transform: translateY(-6px);
+        border-color: color-mix(in oklab, var(--primary) 50%, var(--border));
+        box-shadow: 0 24px 50px -22px
+          color-mix(in oklab, var(--primary) 40%, #000);
+      }
+      @keyframes rise {
+        from {
+          opacity: 0;
+          transform: translateY(14px);
+        }
+        to {
+          opacity: 1;
+          transform: none;
+        }
+      }
+      .card .art-wrap {
+        position: relative;
+        aspect-ratio: 1;
+        overflow: hidden;
+      }
+      .card .art {
+        width: 100%;
+        height: 100%;
+        display: block;
+        object-fit: cover;
+        background: var(--surface-2);
+        transition: 0.5s;
+      }
+      .card:hover .art {
+        transform: scale(1.06);
+      }
+      .card .overlay {
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(
+          180deg,
+          transparent 40%,
+          rgba(0, 0, 0, 0.75)
+        );
+        opacity: 0;
+        transition: 0.3s;
+        display: grid;
+        place-items: center;
+        z-index: 1;
+      }
+      .card:hover .overlay,
+      .card.playing .overlay {
+        opacity: 1;
+      }
+      .play-btn {
+        width: 58px;
+        height: 58px;
+        border-radius: 50%;
+        border: 0;
+        background: var(--gradient-mood);
+        color: #fff;
+        cursor: pointer;
+        display: grid;
+        place-items: center;
+        box-shadow: var(--glow);
+        transition: 0.2s;
+      }
+      .play-btn:hover {
+        transform: scale(1.08);
+      }
+      .fav-btn {
+        position: absolute;
+        top: 12px;
+        right: 12px;
+        width: 38px;
+        height: 38px;
+        border-radius: 50%;
+        border: 0;
+        background: rgba(0, 0, 0, 0.5);
+        backdrop-filter: blur(8px);
+        color: #fff;
+        cursor: pointer;
+        display: grid;
+        place-items: center;
+        transition: 0.2s;
+        opacity: 1;
+        transform: none;
+        z-index: 2;
+      }
+      .fav-btn.on {
+        color: #fb7185;
+        background: rgba(0, 0, 0, 0.65);
+      }
+      .fav-btn:hover {
+        background: rgba(0, 0, 0, 0.7);
+        transform: scale(1.12);
+      }
+      .meta {
+        padding: 14px 16px;
+      }
+      .meta .t {
+        font-weight: 600;
+        font-size: 14px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        letter-spacing: -0.01em;
+      }
+      .meta .a {
+        font-size: 12px;
+        color: var(--muted);
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        margin-top: 3px;
+      }
+      .empty {
+        padding: 80px 24px;
+        text-align: center;
+        color: var(--muted);
+        font-size: 14px;
+        border: 1px dashed var(--border-strong);
+        border-radius: 20px;
+        background: var(--surface);
+        grid-column: 1/-1;
+      }
+      .skeleton {
+        aspect-ratio: 1;
+        border-radius: 20px;
+        background: linear-gradient(
+          90deg,
+          var(--surface),
+          var(--surface-2),
+          var(--surface)
+        );
+        background-size: 200% 100%;
+        animation: sh 1.4s linear infinite;
+      }
+      @keyframes sh {
+        0% {
+          background-position: 200% 0;
+        }
+        100% {
+          background-position: -200% 0;
+        }
+      }
 
-/* ============ PLAYER ============ */
-.player{position:fixed;left:50%;bottom:20px;transform:translateX(-50%) translateY(120%);width:min(740px,calc(100% - 28px));border-radius:22px;padding:14px 18px 18px;display:flex;align-items:center;gap:16px;z-index:40;transition:transform .4s cubic-bezier(.2,.7,.2,1)}
-.player.show{transform:translateX(-50%) translateY(0)}
-.player img{width:56px;height:56px;border-radius:13px;object-fit:cover;box-shadow:var(--glow)}
-.player .info{flex:1;min-width:0}
-.player .info .t{font-weight:600;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.player .info .a{font-size:12px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:2px}
-.eq{display:inline-flex;gap:2px;align-items:end;height:14px;margin-right:8px;vertical-align:-2px}
-.eq span{display:block;width:3px;background:var(--primary);border-radius:2px;animation:eq 1s ease-in-out infinite}
-.eq span:nth-child(2){animation-delay:.15s}
-.eq span:nth-child(3){animation-delay:.3s}
-@keyframes eq{0%,100%{height:3px}50%{height:14px}}
-.player .controls{display:flex;align-items:center;gap:4px}
-.player .controls button{background:transparent;border:0;color:var(--fg);cursor:pointer;width:38px;height:38px;border-radius:50%;display:grid;place-items:center;transition:.15s}
-.player .controls button:hover{background:var(--surface-2)}
-.player .controls .main{background:var(--gradient-mood);color:#fff;box-shadow:var(--glow);width:44px;height:44px}
-.player .controls .main:hover{transform:scale(1.05)}
-.progress{position:absolute;left:18px;right:18px;bottom:8px;height:3px;background:var(--surface-2);border-radius:2px;overflow:hidden;cursor:pointer}
-.progress>div{height:100%;width:0;background:var(--gradient-mood);transition:width .2s linear;border-radius:2px}
+      /* ============ PLAYER ============ */
+      .player {
+        position: fixed;
+        left: 50%;
+        bottom: 20px;
+        transform: translateX(-50%) translateY(120%);
+        width: min(740px, calc(100% - 28px));
+        border-radius: 22px;
+        padding: 14px 18px 18px;
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        z-index: 40;
+        transition: transform 0.4s cubic-bezier(0.2, 0.7, 0.2, 1);
+      }
+      .player.show {
+        transform: translateX(-50%) translateY(0);
+      }
+      .player img {
+        width: 56px;
+        height: 56px;
+        border-radius: 13px;
+        object-fit: cover;
+        box-shadow: var(--glow);
+      }
+      .player .info {
+        flex: 1;
+        min-width: 0;
+      }
+      .player .info .t {
+        font-weight: 600;
+        font-size: 14px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+      .player .info .a {
+        font-size: 12px;
+        color: var(--muted);
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        margin-top: 2px;
+      }
+      .eq {
+        display: inline-flex;
+        gap: 2px;
+        align-items: end;
+        height: 14px;
+        margin-right: 8px;
+        vertical-align: -2px;
+      }
+      .eq span {
+        display: block;
+        width: 3px;
+        background: var(--primary);
+        border-radius: 2px;
+        animation: eq 1s ease-in-out infinite;
+      }
+      .eq span:nth-child(2) {
+        animation-delay: 0.15s;
+      }
+      .eq span:nth-child(3) {
+        animation-delay: 0.3s;
+      }
+      @keyframes eq {
+        0%,
+        100% {
+          height: 3px;
+        }
+        50% {
+          height: 14px;
+        }
+      }
+      .player .controls {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+      }
+      .player .controls button {
+        background: transparent;
+        border: 0;
+        color: var(--fg);
+        cursor: pointer;
+        width: 38px;
+        height: 38px;
+        border-radius: 50%;
+        display: grid;
+        place-items: center;
+        transition: 0.15s;
+      }
+      .player .controls button:hover {
+        background: var(--surface-2);
+      }
+      .player .controls .main {
+        background: var(--gradient-mood);
+        color: #fff;
+        box-shadow: var(--glow);
+        width: 44px;
+        height: 44px;
+      }
+      .player .controls .main:hover {
+        transform: scale(1.05);
+      }
+      .progress {
+        position: absolute;
+        left: 18px;
+        right: 18px;
+        bottom: 8px;
+        height: 3px;
+        background: var(--surface-2);
+        border-radius: 2px;
+        overflow: hidden;
+        cursor: pointer;
+      }
+      .progress > div {
+        height: 100%;
+        width: 0;
+        background: var(--gradient-mood);
+        transition: width 0.2s linear;
+        border-radius: 2px;
+      }
 
-/* ============ AUTH MODAL ============ */
-.modal-backdrop{position:fixed;inset:0;z-index:100;background:rgba(0,0,0,.6);backdrop-filter:blur(6px);display:grid;place-items:center;opacity:0;pointer-events:none;transition:opacity .25s}
-.modal-backdrop.open{opacity:1;pointer-events:all}
-.modal{background:var(--bg-2);border:1px solid var(--border-strong);border-radius:24px;padding:36px 32px 32px;width:min(460px,calc(100vw - 40px));position:relative;transform:translateY(20px) scale(.97);transition:transform .25s;box-shadow:0 40px 80px -20px rgba(0,0,0,.5)}
-.modal-backdrop.open .modal{transform:none}
-.modal h2{font-family:'Space Grotesk',sans-serif;font-size:24px;font-weight:700;margin:0 0 6px;letter-spacing:-.02em}
-.modal .modal-sub{color:var(--muted);font-size:14px;margin:0 0 28px}
-.modal-close{position:absolute;top:18px;right:18px;background:var(--surface);border:1px solid var(--border);color:var(--muted);width:32px;height:32px;border-radius:50%;cursor:pointer;display:grid;place-items:center;font-size:18px;line-height:1;transition:.15s}
-.modal-close:hover{color:var(--fg);border-color:var(--border-strong)}
-.modal label{display:block;font-size:11px;font-weight:700;letter-spacing:.08em;color:var(--muted);margin-bottom:8px}
-.modal .field{margin-bottom:18px}
-.modal input[type=email],.modal input[type=password]{width:100%;padding:14px 16px;border-radius:12px;border:1px solid var(--border);background:var(--surface);color:var(--fg);font:inherit;font-size:15px;outline:none;transition:.2s;box-sizing:border-box}
-.modal input:focus{border-color:color-mix(in oklab,var(--primary) 70%,transparent);box-shadow:0 0 0 4px color-mix(in oklab,var(--primary) 16%,transparent)}
-.modal-error{color:#fb7185;font-size:13px;min-height:18px;margin-bottom:10px}
-.btn-primary{width:100%;padding:15px;border-radius:14px;border:0;background:linear-gradient(135deg,var(--primary),var(--accent));color:#fff;font:inherit;font-size:15px;font-weight:700;cursor:pointer;transition:.2s;letter-spacing:.01em}
-.btn-primary:hover{filter:brightness(1.1);transform:translateY(-1px)}
-.btn-primary:active{transform:none}
-.modal-footer{text-align:left;margin-top:20px;font-size:14px;color:var(--muted)}
-.modal-footer button{background:none;border:0;color:var(--primary);font:inherit;font-size:14px;cursor:pointer;padding:0;text-decoration:underline;text-underline-offset:3px}
-/* avatar badge */
-.avatar{position:relative}
-#avatarFavBadge{position:absolute;top:-4px;right:-4px;min-width:18px;height:18px;padding:0 4px;border-radius:99px;background:#fb7185;color:#fff;font-size:10px;font-weight:700;display:grid;place-items:center;pointer-events:none;line-height:1;transition:.2s;transform:scale(0);border:2px solid var(--bg)}
-#avatarFavBadge.show{transform:scale(1)}
+      /* ============ AUTH MODAL ============ */
+      .modal-backdrop {
+        position: fixed;
+        inset: 0;
+        z-index: 100;
+        background: rgba(0, 0, 0, 0.6);
+        backdrop-filter: blur(6px);
+        display: grid;
+        place-items: center;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.25s;
+      }
+      .modal-backdrop.open {
+        opacity: 1;
+        pointer-events: all;
+      }
+      .modal {
+        background: var(--bg-2);
+        border: 1px solid var(--border-strong);
+        border-radius: 24px;
+        padding: 36px 32px 32px;
+        width: min(460px, calc(100vw - 40px));
+        position: relative;
+        transform: translateY(20px) scale(0.97);
+        transition: transform 0.25s;
+        box-shadow: 0 40px 80px -20px rgba(0, 0, 0, 0.5);
+      }
+      .modal-backdrop.open .modal {
+        transform: none;
+      }
+      .modal h2 {
+        font-family: "Space Grotesk", sans-serif;
+        font-size: 24px;
+        font-weight: 700;
+        margin: 0 0 6px;
+        letter-spacing: -0.02em;
+      }
+      .modal .modal-sub {
+        color: var(--muted);
+        font-size: 14px;
+        margin: 0 0 28px;
+      }
+      .modal-close {
+        position: absolute;
+        top: 18px;
+        right: 18px;
+        background: var(--surface);
+        border: 1px solid var(--border);
+        color: var(--muted);
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        cursor: pointer;
+        display: grid;
+        place-items: center;
+        font-size: 18px;
+        line-height: 1;
+        transition: 0.15s;
+      }
+      .modal-close:hover {
+        color: var(--fg);
+        border-color: var(--border-strong);
+      }
+      .modal label {
+        display: block;
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: 0.08em;
+        color: var(--muted);
+        margin-bottom: 8px;
+      }
+      .modal .field {
+        margin-bottom: 18px;
+      }
+      .modal input[type="email"],
+      .modal input[type="password"] {
+        width: 100%;
+        padding: 14px 16px;
+        border-radius: 12px;
+        border: 1px solid var(--border);
+        background: var(--surface);
+        color: var(--fg);
+        font: inherit;
+        font-size: 15px;
+        outline: none;
+        transition: 0.2s;
+        box-sizing: border-box;
+      }
+      .modal input:focus {
+        border-color: color-mix(in oklab, var(--primary) 70%, transparent);
+        box-shadow: 0 0 0 4px
+          color-mix(in oklab, var(--primary) 16%, transparent);
+      }
+      .modal-error {
+        color: #fb7185;
+        font-size: 13px;
+        min-height: 18px;
+        margin-bottom: 10px;
+      }
+      .btn-primary {
+        width: 100%;
+        padding: 15px;
+        border-radius: 14px;
+        border: 0;
+        background: linear-gradient(135deg, var(--primary), var(--accent));
+        color: #fff;
+        font: inherit;
+        font-size: 15px;
+        font-weight: 700;
+        cursor: pointer;
+        transition: 0.2s;
+        letter-spacing: 0.01em;
+      }
+      .btn-primary:hover {
+        filter: brightness(1.1);
+        transform: translateY(-1px);
+      }
+      .btn-primary:active {
+        transform: none;
+      }
+      .modal-footer {
+        text-align: left;
+        margin-top: 20px;
+        font-size: 14px;
+        color: var(--muted);
+      }
+      .modal-footer button {
+        background: none;
+        border: 0;
+        color: var(--primary);
+        font: inherit;
+        font-size: 14px;
+        cursor: pointer;
+        padding: 0;
+        text-decoration: underline;
+        text-underline-offset: 3px;
+      }
+      /* avatar badge */
+      .avatar {
+        position: relative;
+      }
+      #avatarFavBadge {
+        position: absolute;
+        top: -4px;
+        right: -4px;
+        min-width: 18px;
+        height: 18px;
+        padding: 0 4px;
+        border-radius: 99px;
+        background: #fb7185;
+        color: #fff;
+        font-size: 10px;
+        font-weight: 700;
+        display: grid;
+        place-items: center;
+        pointer-events: none;
+        line-height: 1;
+        transition: 0.2s;
+        transform: scale(0);
+        border: 2px solid var(--bg);
+      }
+      #avatarFavBadge.show {
+        transform: scale(1);
+      }
 
-@media(max-width:600px){
-  .player .info .a{display:none}
-  .search{order:3;flex-basis:100%}
-  main{padding:28px 18px 0}
-  h1{font-size:38px}
-}
-</style>
-</head>
-<body>
-<div class="aurora"><i></i><i></i><i></i></div>
+      @media (max-width: 600px) {
+        .player .info .a {
+          display: none;
+        }
+        .search {
+          order: 3;
+          flex-basis: 100%;
+        }
+        main {
+          padding: 28px 18px 0;
+        }
+        h1 {
+          font-size: 38px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="aurora"><i></i><i></i><i></i></div>
 
-<header class="glass">
-  <a href="#" class="logo" style="text-decoration:none;color:inherit">
-    <span class="badge">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 0 1 18 0"/><path d="M21 19a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3z"/><path d="M3 19a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-3a2 2 0 0 0-2-2H3z"/></svg>
-    </span>
-    <span><span class="text-grad">Sound</span>Scape</span>
-  </a>
+    <header class="glass">
+      <a href="#" class="logo" style="text-decoration: none; color: inherit">
+        <span class="badge">
+          <svg
+            width="20"
+            height="20"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <path d="M3 12a9 9 0 0 1 18 0" />
+            <path
+              d="M21 19a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3z"
+            />
+            <path d="M3 19a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-3a2 2 0 0 0-2-2H3z" />
+          </svg>
+        </span>
+        <span><span class="text-grad">Sound</span>Scape</span>
+      </a>
 
-  <form class="search" id="searchForm">
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:var(--muted);flex-shrink:0"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
-    <input id="searchInput" placeholder="Search tracks, artists, vibes…" />
-  </form>
+      <form class="search" id="searchForm">
+        <svg
+          width="16"
+          height="16"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          style="color: var(--muted); flex-shrink: 0"
+        >
+          <circle cx="11" cy="11" r="8" />
+          <path d="m21 21-4.3-4.3" />
+        </svg>
+        <input id="searchInput" placeholder="Search tracks, artists, vibes…" />
+      </form>
 
-  <button class="icon-btn" id="themeBtn" title="Toggle theme" aria-label="Toggle theme"></button>
+      <button
+        class="icon-btn"
+        id="themeBtn"
+        title="Toggle theme"
+        aria-label="Toggle theme"
+      ></button>
 
-  <div class="profile">
-    <button class="avatar" id="avatarBtn" aria-label="Profile">
-      <span id="avatarInit">U</span>
-      <span id="avatarFavBadge"></span>
-    </button>
-    <div class="menu glass" id="profileMenu">
-      <button id="signinBtn">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg>
-        Sign in
-      </button>
-      <button id="showFavBtn">
-        <svg id="menuFavIcon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.29 1.51 4.04 3 5.5l7 7Z"/></svg>
-        Favorites <span id="menuFavCount" style="margin-left:auto;font-size:11px;background:rgba(251,113,133,.2);color:#fb7185;border-radius:99px;padding:1px 7px;display:none"></span>
-      </button>
-      <hr/>
-      <button id="clearBtn">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-2 14a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2L5 6"/></svg>
-        Clear favorites
-      </button>
+      <div class="profile">
+        <button class="avatar" id="avatarBtn" aria-label="Profile">
+          <span id="avatarInit">U</span>
+          <span id="avatarFavBadge"></span>
+        </button>
+        <div class="menu glass" id="profileMenu">
+          <button id="signinBtn">
+            <svg
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4" />
+              <polyline points="10 17 15 12 10 7" />
+              <line x1="15" y1="12" x2="3" y2="12" />
+            </svg>
+            Sign in
+          </button>
+          <button id="showFavBtn">
+            <svg
+              id="menuFavIcon"
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <path
+                d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.29 1.51 4.04 3 5.5l7 7Z"
+              />
+            </svg>
+            Favorites
+            <span
+              id="menuFavCount"
+              style="
+                margin-left: auto;
+                font-size: 11px;
+                background: rgba(251, 113, 133, 0.2);
+                color: #fb7185;
+                border-radius: 99px;
+                padding: 1px 7px;
+                display: none;
+              "
+            ></span>
+          </button>
+          <hr />
+          <button id="clearBtn">
+            <svg
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <polyline points="3 6 5 6 21 6" />
+              <path d="M19 6l-2 14a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2L5 6" />
+            </svg>
+            Clear favorites
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <main>
+      <span class="eyebrow"
+        ><span class="dot"></span> Music tuned to how you feel</span
+      >
+      <h1>Drift into the <span class="text-grad">SoundScape</span></h1>
+      <p class="sub">
+        Hòa mình vào không gian âm nhạc. Pick a mood, search anything, save the
+        tracks that move you — your library lives right here on your device.
+      </p>
+
+      <div class="mood glass" id="moodPicker">
+        <button data-mood="chill" class="active">✨ Chill</button>
+        <button data-mood="focus">🎧 Focus</button>
+        <button data-mood="hype">🔥 Hype</button>
+      </div>
+
+      <section class="tracks">
+        <div class="section-head">
+          <h2 id="sectionTitle">Trending · chill</h2>
+          <span id="sectionCount">0 tracks</span>
+        </div>
+        <div id="results" class="grid"></div>
+      </section>
+    </main>
+
+    <div class="player glass" id="player">
+      <img id="pArt" alt="" />
+      <div class="info">
+        <div class="t">
+          <span class="eq" id="eq" style="display: none"
+            ><span></span><span></span><span></span></span
+          ><span id="pTitle"></span>
+        </div>
+        <div class="a" id="pArtist"></div>
+      </div>
+      <div class="controls">
+        <button id="prevBtn" title="Previous">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+            <polygon points="19 20 9 12 19 4 19 20" />
+            <rect x="4" y="5" width="2" height="14" />
+          </svg>
+        </button>
+        <button id="playBtn" class="main" title="Play/Pause">
+          <span id="playIcon"></span>
+        </button>
+        <button id="nextBtn" title="Next">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+            <polygon points="5 4 15 12 5 20 5 4" />
+            <rect x="18" y="5" width="2" height="14" />
+          </svg>
+        </button>
+      </div>
+      <div class="progress" id="progress"><div id="pBar"></div></div>
     </div>
-  </div>
-</header>
 
-<main>
-  <span class="eyebrow"><span class="dot"></span> Music tuned to how you feel</span>
-  <h1>Drift into the <span class="text-grad">SoundScape</span></h1>
-  <p class="sub">Hòa mình vào không gian âm nhạc. Pick a mood, search anything, save the tracks that move you — your library lives right here on your device.</p>
+    <audio id="audio"></audio>
 
-  <div class="mood glass" id="moodPicker">
-    <button data-mood="chill" class="active">✨ Chill</button>
-    <button data-mood="focus">🎧 Focus</button>
-    <button data-mood="hype">🔥 Hype</button>
-  </div>
-
-  <section class="tracks">
-    <div class="section-head"><h2 id="sectionTitle">Trending · chill</h2><span id="sectionCount">0 tracks</span></div>
-    <div id="results" class="grid"></div>
-  </section>
-</main>
-
-<div class="player glass" id="player">
-  <img id="pArt" alt=""/>
-  <div class="info"><div class="t"><span class="eq" id="eq" style="display:none"><span></span><span></span><span></span></span><span id="pTitle"></span></div><div class="a" id="pArtist"></div></div>
-  <div class="controls">
-    <button id="prevBtn" title="Previous"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><polygon points="19 20 9 12 19 4 19 20"/><rect x="4" y="5" width="2" height="14"/></svg></button>
-    <button id="playBtn" class="main" title="Play/Pause"><span id="playIcon"></span></button>
-    <button id="nextBtn" title="Next"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 4 15 12 5 20 5 4"/><rect x="18" y="5" width="2" height="14"/></svg></button>
-  </div>
-  <div class="progress" id="progress"><div id="pBar"></div></div>
-</div>
-
-<audio id="audio"></audio>
-
-<!-- AUTH MODAL -->
-<div class="modal-backdrop" id="authBackdrop">
-  <div class="modal glass">
-    <button class="modal-close" id="modalClose" aria-label="Close">×</button>
-    <h2 id="modalTitle">Welcome back</h2>
-    <p class="modal-sub" id="modalSub">Sign in to sync your favorites across devices.</p>
-    <div class="field">
-      <label for="modalEmail">EMAIL</label>
-      <input type="email" id="modalEmail" placeholder="you@soundscape.fm" autocomplete="email" />
+    <!-- AUTH MODAL -->
+    <div class="modal-backdrop" id="authBackdrop">
+      <div class="modal glass">
+        <button class="modal-close" id="modalClose" aria-label="Close">
+          ×
+        </button>
+        <h2 id="modalTitle">Welcome back</h2>
+        <p class="modal-sub" id="modalSub">
+          Sign in to sync your favorites across devices.
+        </p>
+        <div class="field">
+          <label for="modalEmail">EMAIL</label>
+          <input
+            type="email"
+            id="modalEmail"
+            placeholder="you@soundscape.fm"
+            autocomplete="email"
+          />
+        </div>
+        <div class="field">
+          <label for="modalPass">PASSWORD</label>
+          <input
+            type="password"
+            id="modalPass"
+            placeholder="••••••••"
+            autocomplete="current-password"
+          />
+        </div>
+        <p class="modal-error" id="modalError"></p>
+        <button class="btn-primary" id="modalSubmit">Sign in</button>
+        <p class="modal-footer" id="modalFooter">
+          Don't have an account?
+          <button id="modalToggle">Create account</button>
+        </p>
+      </div>
     </div>
-    <div class="field">
-      <label for="modalPass">PASSWORD</label>
-      <input type="password" id="modalPass" placeholder="••••••••" autocomplete="current-password" />
-    </div>
-    <p class="modal-error" id="modalError"></p>
-    <button class="btn-primary" id="modalSubmit">Sign in</button>
-    <p class="modal-footer" id="modalFooter">
-      Don't have an account? <button id="modalToggle">Create account</button>
-    </p>
-  </div>
-</div>
 
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
-<script>
-// ── FIXED VERSION ──
-// Bugs fixed:
-// 1. Removed duplicate JS block outside <script> tags
-// 2. Fixed stray "{" in render() art-wrap HTML
-// 3. Fixed animation-delay missing "ms" unit in render()
-// 4. Fixed signinBtn listener — now properly handles sign-in AND sign-out
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+    <script>
+      // ── FIXED VERSION ──
+      // Bugs fixed:
+      // 1. Removed duplicate JS block outside <script> tags
+      // 2. Fixed stray "{" in render() art-wrap HTML
+      // 3. Fixed animation-delay missing "ms" unit in render()
+      // 4. Fixed signinBtn listener — now properly handles sign-in AND sign-out
 
-const SUPA_URL="https://gffvrxtynvdjqfwxwxvj.supabase.co";
-const SUPA_KEY="sb_publishable_EAq2tFpFtTDTIh3zxYDOaQ_4RsYJyGj";
-const sb=supabase.createClient(SUPA_URL,SUPA_KEY);
+      const SUPA_URL = "https://gffvrxtynvdjqfwxwxvj.supabase.co";
+      const SUPA_KEY = "sb_publishable_EAq2tFpFtTDTIh3zxYDOaQ_4RsYJyGj";
+      const sb = supabase.createClient(SUPA_URL, SUPA_KEY);
 
-const MOOD_Q={chill:"lofi chill",focus:"ambient focus",hype:"dance hits"};
-const state={mood:"chill",query:"",showFavs:false,tracks:[],current:null,playing:false,queue:[],user:null};
-const FAV_KEY="soundscape.favorites";
-const THEME_KEY="soundscape.theme";
-const MOOD_KEY="soundscape.mood";
-const $=s=>document.querySelector(s);
+      const MOOD_Q = {
+        chill: "lofi chill",
+        focus: "ambient focus",
+        hype: "dance hits",
+      };
+      const state = {
+        mood: "chill",
+        query: "",
+        showFavs: false,
+        tracks: [],
+        current: null,
+        playing: false,
+        queue: [],
+        user: null,
+      };
+      const FAV_KEY = "soundscape.favorites";
+      const THEME_KEY = "soundscape.theme";
+      const MOOD_KEY = "soundscape.mood";
+      const $ = (s) => document.querySelector(s);
 
-const ICON_SUN='<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/></svg>';
-const ICON_MOON='<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>';
-const ICON_PLAY='<svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><polygon points="6 4 20 12 6 20 6 4"/></svg>';
-const ICON_PAUSE='<svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="4" width="4" height="16" rx="1"/><rect x="14" y="4" width="4" height="16" rx="1"/></svg>';
+      const ICON_SUN =
+        '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/></svg>';
+      const ICON_MOON =
+        '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>';
+      const ICON_PLAY =
+        '<svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><polygon points="6 4 20 12 6 20 6 4"/></svg>';
+      const ICON_PAUSE =
+        '<svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="4" width="4" height="16" rx="1"/><rect x="14" y="4" width="4" height="16" rx="1"/></svg>';
 
-/* ── THEME ── */
-function applyTheme(t){document.documentElement.dataset.theme=t;$("#themeBtn").innerHTML=t==="dark"?ICON_SUN:ICON_MOON;localStorage.setItem(THEME_KEY,t);}
-applyTheme(localStorage.getItem(THEME_KEY)||(matchMedia("(prefers-color-scheme: light)").matches?"light":"dark"));
-$("#themeBtn").addEventListener("click",()=>applyTheme(document.documentElement.dataset.theme==="dark"?"light":"dark"));
+      /* ── THEME ── */
+      function applyTheme(t) {
+        document.documentElement.dataset.theme = t;
+        $("#themeBtn").innerHTML = t === "dark" ? ICON_SUN : ICON_MOON;
+        localStorage.setItem(THEME_KEY, t);
+      }
+      applyTheme(
+        localStorage.getItem(THEME_KEY) ||
+          (matchMedia("(prefers-color-scheme: light)").matches
+            ? "light"
+            : "dark"),
+      );
+      $("#themeBtn").addEventListener("click", () =>
+        applyTheme(
+          document.documentElement.dataset.theme === "dark" ? "light" : "dark",
+        ),
+      );
 
-/* ── MOOD ── */
-const savedMood=localStorage.getItem(MOOD_KEY);
-if(savedMood){state.mood=savedMood;document.documentElement.dataset.mood=savedMood;document.querySelectorAll("#moodPicker button").forEach(b=>b.classList.toggle("active",b.dataset.mood===savedMood));}
+      /* ── MOOD ── */
+      const savedMood = localStorage.getItem(MOOD_KEY);
+      if (savedMood) {
+        state.mood = savedMood;
+        document.documentElement.dataset.mood = savedMood;
+        document
+          .querySelectorAll("#moodPicker button")
+          .forEach((b) =>
+            b.classList.toggle("active", b.dataset.mood === savedMood),
+          );
+      }
 
-/* ── FAVORITES (local) ── */
-const loadFavsLocal=()=>{try{return JSON.parse(localStorage.getItem(FAV_KEY)||"[]")}catch{return[]}};
-const saveFavsLocal=f=>localStorage.setItem(FAV_KEY,JSON.stringify(f));
-let favs=loadFavsLocal();
-const isFav=id=>favs.some(f=>String(f.id)===String(id));
+      /* ── FAVORITES (local) ── */
+      const loadFavsLocal = () => {
+        try {
+          return JSON.parse(localStorage.getItem(FAV_KEY) || "[]");
+        } catch {
+          return [];
+        }
+      };
+      const saveFavsLocal = (f) =>
+        localStorage.setItem(FAV_KEY, JSON.stringify(f));
+      let favs = loadFavsLocal();
+      const isFav = (id) => favs.some((f) => String(f.id) === String(id));
 
-/* ── FAVORITES (Supabase) ── */
-async function loadFavsFromDB(user){
-  try{
-    const {data,error}=await sb.from("favorites").select("track").eq("user_id",user.id).order("created_at",{ascending:false});
-    if(error){console.warn("loadFavs err",error);return;}
-    favs=(data||[]).map(r=>r.track).filter(Boolean);
-    saveFavsLocal(favs);
-    syncFavBtn();
-    if(state.showFavs)render();
-  }catch(e){console.warn(e);}
-}
-async function addFavToDB(user,track){
-  try{
-    await sb.from("favorites").upsert({user_id:user.id,track_id:String(track.id),track},{onConflict:"user_id,track_id"});
-  }catch(e){console.warn(e);}
-}
-async function removeFavFromDB(user,track){
-  try{
-    await sb.from("favorites").delete().match({user_id:user.id,track_id:String(track.id)});
-  }catch(e){console.warn(e);}
-}
+      /* ── FAVORITES (Supabase) ── */
+      async function loadFavsFromDB(user) {
+        try {
+          const { data, error } = await sb
+            .from("favorites")
+            .select("track")
+            .eq("user_id", user.id)
+            .order("created_at", { ascending: false });
+          if (error) {
+            console.warn("loadFavs err", error);
+            return;
+          }
+          favs = (data || []).map((r) => r.track).filter(Boolean);
+          saveFavsLocal(favs);
+          syncFavBtn();
+          if (state.showFavs) render();
+        } catch (e) {
+          console.warn(e);
+        }
+      }
+      async function addFavToDB(user, track) {
+        try {
+          await sb
+            .from("favorites")
+            .upsert(
+              { user_id: user.id, track_id: String(track.id), track },
+              { onConflict: "user_id,track_id" },
+            );
+        } catch (e) {
+          console.warn(e);
+        }
+      }
+      async function removeFavFromDB(user, track) {
+        try {
+          await sb
+            .from("favorites")
+            .delete()
+            .match({ user_id: user.id, track_id: String(track.id) });
+        } catch (e) {
+          console.warn(e);
+        }
+      }
 
-function syncFavBtn(){
-  const badge=$("#avatarFavBadge");
-  const menuIcon=$("#menuFavIcon");
-  const menuCount=$("#menuFavCount");
-  const hasFavs=favs.length>0;
-  if(badge){badge.textContent=hasFavs?favs.length:"";badge.classList.toggle("show",hasFavs);}
-  if(menuIcon){menuIcon.setAttribute("fill",hasFavs?"#fb7185":"none");menuIcon.setAttribute("stroke",hasFavs?"#fb7185":"currentColor");}
-  if(menuCount){menuCount.textContent=favs.length;menuCount.style.display=hasFavs?"inline":"none";}
-}
+      function syncFavBtn() {
+        const badge = $("#avatarFavBadge");
+        const menuIcon = $("#menuFavIcon");
+        const menuCount = $("#menuFavCount");
+        const hasFavs = favs.length > 0;
+        if (badge) {
+          badge.textContent = hasFavs ? favs.length : "";
+          badge.classList.toggle("show", hasFavs);
+        }
+        if (menuIcon) {
+          menuIcon.setAttribute("fill", hasFavs ? "#fb7185" : "none");
+          menuIcon.setAttribute("stroke", hasFavs ? "#fb7185" : "currentColor");
+        }
+        if (menuCount) {
+          menuCount.textContent = favs.length;
+          menuCount.style.display = hasFavs ? "inline" : "none";
+        }
+      }
 
-const toggleFav=t=>{
-  const already=isFav(t.id);
-  favs=already?favs.filter(f=>String(f.id)!==String(t.id)):[t,...favs];
-  saveFavsLocal(favs);
-  syncFavBtn();
-  if(state.user){
-    if(already)removeFavFromDB(state.user,t);
-    else addFavToDB(state.user,t);
-  }
-  if(state.showFavs){render();return;}
-  document.querySelectorAll(`[data-fav="${t.id}"]`).forEach(btn=>{
-    const now=isFav(t.id);
-    btn.classList.toggle("on",now);
-    const svg=btn.querySelector("svg");
-    if(svg)svg.setAttribute("fill",now?"currentColor":"none");
-  });
-};
+      const toggleFav = (t) => {
+        const already = isFav(t.id);
+        favs = already
+          ? favs.filter((f) => String(f.id) !== String(t.id))
+          : [t, ...favs];
+        saveFavsLocal(favs);
+        syncFavBtn();
+        if (state.user) {
+          if (already) removeFavFromDB(state.user, t);
+          else addFavToDB(state.user, t);
+        }
+        if (state.showFavs) {
+          render();
+          return;
+        }
+        document.querySelectorAll(`[data-fav="${t.id}"]`).forEach((btn) => {
+          const now = isFav(t.id);
+          btn.classList.toggle("on", now);
+          const svg = btn.querySelector("svg");
+          if (svg) svg.setAttribute("fill", now ? "currentColor" : "none");
+        });
+      };
 
-/* ── AUTH STATE ── */
-function updateUserUI(user){
-  state.user=user;
-  const init=$("#avatarInit");
-  const btn=$("#signinBtn");
-  if(user){
-    const letter=(user.email||"U")[0].toUpperCase();
-    if(init)init.textContent=letter;
-    if(btn){btn.innerHTML=`<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg> Sign out`;}
-  }else{
-    if(init)init.textContent="U";
-    if(btn){btn.innerHTML=`<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg> Sign in`;}
-  }
-}
+      /* ── AUTH STATE ── */
+      function updateUserUI(user) {
+        state.user = user;
+        const init = $("#avatarInit");
+        const btn = $("#signinBtn");
+        if (user) {
+          const letter = (user.email || "U")[0].toUpperCase();
+          if (init) init.textContent = letter;
+          if (btn) {
+            btn.innerHTML = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg> Sign out`;
+          }
+        } else {
+          if (init) init.textContent = "U";
+          if (btn) {
+            btn.innerHTML = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg> Sign in`;
+          }
+        }
+      }
 
-sb.auth.getSession().then(({data:{session}})=>{
-  updateUserUI(session?.user??null);
-  if(session?.user)loadFavsFromDB(session.user);
-});
-sb.auth.onAuthStateChange((_e,session)=>{
-  const user=session?.user??null;
-  updateUserUI(user);
-  if(user)loadFavsFromDB(user);
-  else{favs=loadFavsLocal();syncFavBtn();if(state.showFavs)render();}
-});
+      sb.auth.getSession().then(({ data: { session } }) => {
+        updateUserUI(session?.user ?? null);
+        if (session?.user) loadFavsFromDB(session.user);
+      });
+      sb.auth.onAuthStateChange((_e, session) => {
+        const user = session?.user ?? null;
+        updateUserUI(user);
+        if (user) loadFavsFromDB(user);
+        else {
+          favs = loadFavsLocal();
+          syncFavBtn();
+          if (state.showFavs) render();
+        }
+      });
 
-/* ── iTUNES ── */
-async function fetchTracks(q){
-  const r=await fetch(`https://itunes.apple.com/search?term=${encodeURIComponent(q)}&media=music&limit=40`);
-  const d=await r.json();
-  return d.results.filter(x=>x.previewUrl&&x.trackName&&x.artworkUrl100).map(x=>({
-    id:String(x.trackId),title:x.trackName,artist:x.artistName,
-    artwork:x.artworkUrl100.replace("100x100","600x600"),preview:x.previewUrl
-  }));
-}
+      /* ── iTUNES ── */
+      async function fetchTracks(q) {
+        const r = await fetch(
+          `https://itunes.apple.com/search?term=${encodeURIComponent(q)}&media=music&limit=40`,
+        );
+        const d = await r.json();
+        return d.results
+          .filter((x) => x.previewUrl && x.trackName && x.artworkUrl100)
+          .map((x) => ({
+            id: String(x.trackId),
+            title: x.trackName,
+            artist: x.artistName,
+            artwork: x.artworkUrl100.replace("100x100", "600x600"),
+            preview: x.previewUrl,
+          }));
+      }
 
-async function load(){
-  const q=state.query||MOOD_Q[state.mood];
-  $("#results").innerHTML=Array.from({length:10}).map(()=>'<div class="skeleton"></div>').join("");
-  try{state.tracks=await fetchTracks(q)}catch{state.tracks=[];}
-  render();
-}
+      async function load() {
+        const q = state.query || MOOD_Q[state.mood];
+        $("#results").innerHTML = Array.from({ length: 10 })
+          .map(() => '<div class="skeleton"></div>')
+          .join("");
+        try {
+          state.tracks = await fetchTracks(q);
+        } catch {
+          state.tracks = [];
+        }
+        render();
+      }
 
-// FIX 1: removed stray "{" before <img> tag
-// FIX 2: animation-delay now has "ms" unit
-function render(){
-  const list=state.showFavs?favs:state.tracks;
-  $("#sectionTitle").textContent=state.showFavs?"Your favorites":state.query?`Results · ${state.query}`:`Trending · ${state.mood}`;
-  $("#sectionCount").textContent=`${list.length} ${list.length===1?"track":"tracks"}`;
-  syncFavBtn();
-  if(!list.length){
-    $("#results").innerHTML=`<div class="empty">${state.showFavs?"💔 No favorites yet. Tap the heart on any track to save it here.":"🔍 No tracks found. Try a different search."}</div>`;return;
-  }
-  $("#results").innerHTML=list.map((t,i)=>`
-    <div class="card ${state.current?.id===t.id?"playing":""}" data-id="${t.id}" style="animation-delay:${Math.min(i*30,400)}ms">
+      // FIX 1: removed stray "{" before <img> tag
+      // FIX 2: animation-delay now has "ms" unit
+      function render() {
+        const list = state.showFavs ? favs : state.tracks;
+        $("#sectionTitle").textContent = state.showFavs
+          ? "Your favorites"
+          : state.query
+            ? `Results · ${state.query}`
+            : `Trending · ${state.mood}`;
+        $("#sectionCount").textContent =
+          `${list.length} ${list.length === 1 ? "track" : "tracks"}`;
+        syncFavBtn();
+        if (!list.length) {
+          $("#results").innerHTML =
+            `<div class="empty">${state.showFavs ? "💔 No favorites yet. Tap the heart on any track to save it here." : "🔍 No tracks found. Try a different search."}</div>`;
+          return;
+        }
+        $("#results").innerHTML = list
+          .map(
+            (t, i) => `
+    <div class="card ${state.current?.id === t.id ? "playing" : ""}" data-id="${t.id}" style="animation-delay:${Math.min(i * 30, 400)}ms">
       <div class="art-wrap">
-        <img class="art" src="${t.artwork}" alt="${t.title.replace(/"/g,'&quot;')}" loading="lazy"/>
-        <button class="fav-btn ${isFav(t.id)?"on":""}" data-fav="${t.id}" aria-label="Favorite">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="${isFav(t.id)?"currentColor":"none"}" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.29 1.51 4.04 3 5.5l7 7Z"/></svg>
+        <img class="art" src="${t.artwork}" alt="${t.title.replace(/"/g, "&quot;")}" loading="lazy"/>
+        <button class="fav-btn ${isFav(t.id) ? "on" : ""}" data-fav="${t.id}" aria-label="Favorite">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="${isFav(t.id) ? "currentColor" : "none"}" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.29 1.51 4.04 3 5.5l7 7Z"/></svg>
         </button>
         <div class="overlay"><button class="play-btn" data-play="${t.id}" aria-label="Play">
-          ${state.current?.id===t.id&&state.playing?ICON_PAUSE.replace('width="18" height="18"','width="22" height="22"'):ICON_PLAY.replace('width="18" height="18"','width="22" height="22"')}
+          ${state.current?.id === t.id && state.playing ? ICON_PAUSE.replace('width="18" height="18"', 'width="22" height="22"') : ICON_PLAY.replace('width="18" height="18"', 'width="22" height="22"')}
         </button></div>
       </div>
       <div class="meta"><div class="t">${t.title}</div><div class="a">${t.artist}</div></div>
-    </div>`).join("");
-}
-
-/* ── PLAYER ── */
-const audio=$("#audio");
-function playTrack(t){
-  state.queue=state.showFavs?favs:state.tracks;state.current=t;state.playing=true;
-  audio.src=t.preview;audio.play();
-  $("#pArt").src=t.artwork;$("#pTitle").textContent=" "+t.title;$("#pArtist").textContent=t.artist;
-  $("#player").classList.add("show");$("#eq").style.display="inline-flex";
-  syncPlayIcon();render();
-}
-function syncPlayIcon(){$("#playIcon").innerHTML=state.playing?ICON_PAUSE:ICON_PLAY;}
-function step(d){
-  if(!state.queue.length||!state.current)return;
-  const i=state.queue.findIndex(x=>x.id===state.current.id);
-  playTrack(state.queue[(i+d+state.queue.length)%state.queue.length]);
-}
-audio.addEventListener("timeupdate",()=>{$("#pBar").style.width=(audio.currentTime/audio.duration*100||0)+"%"});
-audio.addEventListener("ended",()=>step(1));
-audio.addEventListener("pause",()=>{state.playing=false;$("#eq").style.display="none";syncPlayIcon();render()});
-audio.addEventListener("play",()=>{state.playing=true;$("#eq").style.display="inline-flex";syncPlayIcon();render()});
-$("#progress").addEventListener("click",e=>{if(!audio.duration)return;const r=e.currentTarget.getBoundingClientRect();audio.currentTime=(e.clientX-r.left)/r.width*audio.duration});
-
-/* ── EVENTS ── */
-$("#results").addEventListener("click",e=>{
-  const fav=e.target.closest("[data-fav]"),play=e.target.closest("[data-play]"),card=e.target.closest(".card");
-  if(fav){e.stopPropagation();const t=(state.showFavs?favs:state.tracks).find(x=>String(x.id)===String(fav.dataset.fav));if(t)toggleFav(t);return;}
-  const id=(play||card)?.dataset.play||card?.dataset.id;if(!id)return;
-  const t=(state.showFavs?favs:state.tracks).find(x=>x.id===id);if(!t)return;
-  if(state.current?.id===t.id){state.playing?audio.pause():audio.play();}else playTrack(t);
-});
-
-$("#moodPicker").addEventListener("click",e=>{
-  const b=e.target.closest("button[data-mood]");if(!b)return;
-  state.mood=b.dataset.mood;state.query="";state.showFavs=false;
-  document.documentElement.dataset.mood=state.mood;
-  localStorage.setItem(MOOD_KEY,state.mood);
-  document.querySelectorAll("#moodPicker button").forEach(x=>x.classList.toggle("active",x===b));
-  load();
-});
-
-$("#searchForm").addEventListener("submit",e=>{e.preventDefault();state.query=$("#searchInput").value.trim();state.showFavs=false;load();});
-$("#playBtn").addEventListener("click",()=>{if(!state.current)return;state.playing?audio.pause():audio.play();});
-$("#prevBtn").addEventListener("click",()=>step(-1));
-$("#nextBtn").addEventListener("click",()=>step(1));
-
-const menu=$("#profileMenu");
-$("#avatarBtn").addEventListener("click",e=>{e.stopPropagation();menu.classList.toggle("open");});
-document.addEventListener("click",()=>menu.classList.remove("open"));
-$("#showFavBtn").addEventListener("click",()=>{state.showFavs=true;render();menu.classList.remove("open");});
-$("#clearBtn").addEventListener("click",async()=>{
-  if(!confirm("Clear all favorites?"))return;
-  if(state.user){await sb.from("favorites").delete().eq("user_id",state.user.id);}
-  favs=[];saveFavsLocal(favs);render();
-  menu.classList.remove("open");
-});
-
-// FIX 3: signinBtn correctly handles both sign-in and sign-out
-$("#signinBtn").addEventListener("click",()=>{
-  if(state.user){sb.auth.signOut();menu.classList.remove("open");}
-  else openModal("signin");
-});
-
-/* ── AUTH MODAL ── */
-let authMode="signin";
-function openModal(mode){
-  authMode=mode;
-  menu.classList.remove("open");
-  $("#modalTitle").textContent=mode==="signin"?"Welcome back":"Create an account";
-  $("#modalSub").textContent=mode==="signin"?"Sign in to sync your favorites across devices.":"Sign up to save your library to the cloud.";
-  $("#modalSubmit").textContent=mode==="signin"?"Sign in":"Sign up";
-  $("#modalError").textContent="";
-  $("#modalError").style.color="#fb7185";
-  $("#modalEmail").value="";$("#modalPass").value="";
-  $("#modalFooter").innerHTML=mode==="signin"
-    ?`Don't have an account? <button id="modalToggle">Create account</button>`
-    :`Have an account? <button id="modalToggle">Sign in</button>`;
-  $("#modalToggle").addEventListener("click",()=>openModal(mode==="signin"?"signup":"signin"));
-  $("#authBackdrop").classList.add("open");
-  setTimeout(()=>$("#modalEmail").focus(),100);
-}
-function closeModal(){$("#authBackdrop").classList.remove("open");}
-$("#modalClose").addEventListener("click",closeModal);
-$("#authBackdrop").addEventListener("click",e=>{if(e.target===$("#authBackdrop"))closeModal();});
-document.addEventListener("keydown",e=>{if(e.key==="Escape")closeModal();});
-
-$("#modalSubmit").addEventListener("click",async()=>{
-  const email=$("#modalEmail").value.trim();
-  const pass=$("#modalPass").value;
-  const errEl=$("#modalError");
-  const btn=$("#modalSubmit");
-  if(!email||!pass){errEl.textContent="Please fill in all fields.";return;}
-  btn.disabled=true;btn.textContent="Please wait…";errEl.textContent="";
-  try{
-    let error;
-    if(authMode==="signin"){
-      ({error}=await sb.auth.signInWithPassword({email,password:pass}));
-    }else{
-      ({error}=await sb.auth.signUp({email,password:pass}));
-    }
-    if(error){errEl.textContent=error.message;}
-    else{
-      if(authMode==="signup"){
-        errEl.style.color="var(--primary)";
-        errEl.textContent="✓ Check your email to confirm your account!";
-        setTimeout(closeModal,3000);
-      }else{
-        closeModal();
+    </div>`,
+          )
+          .join("");
       }
-    }
-  }catch(e){errEl.textContent=String(e);}
-  finally{btn.disabled=false;btn.textContent=authMode==="signin"?"Sign in":"Sign up";}
-});
 
-syncPlayIcon();
-syncFavBtn();
-load();
-</script>
-</body>
+      /* ── PLAYER ── */
+      const audio = $("#audio");
+      function playTrack(t) {
+        state.queue = state.showFavs ? favs : state.tracks;
+        state.current = t;
+        state.playing = true;
+        audio.src = t.preview;
+        audio.play();
+        $("#pArt").src = t.artwork;
+        $("#pTitle").textContent = " " + t.title;
+        $("#pArtist").textContent = t.artist;
+        $("#player").classList.add("show");
+        $("#eq").style.display = "inline-flex";
+        syncPlayIcon();
+        render();
+      }
+      function syncPlayIcon() {
+        $("#playIcon").innerHTML = state.playing ? ICON_PAUSE : ICON_PLAY;
+      }
+      function step(d) {
+        if (!state.queue.length || !state.current) return;
+        const i = state.queue.findIndex((x) => x.id === state.current.id);
+        playTrack(
+          state.queue[(i + d + state.queue.length) % state.queue.length],
+        );
+      }
+      audio.addEventListener("timeupdate", () => {
+        $("#pBar").style.width =
+          ((audio.currentTime / audio.duration) * 100 || 0) + "%";
+      });
+      audio.addEventListener("ended", () => step(1));
+      audio.addEventListener("pause", () => {
+        state.playing = false;
+        $("#eq").style.display = "none";
+        syncPlayIcon();
+        render();
+      });
+      audio.addEventListener("play", () => {
+        state.playing = true;
+        $("#eq").style.display = "inline-flex";
+        syncPlayIcon();
+        render();
+      });
+      $("#progress").addEventListener("click", (e) => {
+        if (!audio.duration) return;
+        const r = e.currentTarget.getBoundingClientRect();
+        audio.currentTime = ((e.clientX - r.left) / r.width) * audio.duration;
+      });
+
+      /* ── EVENTS ── */
+      $("#results").addEventListener("click", (e) => {
+        const fav = e.target.closest("[data-fav]"),
+          play = e.target.closest("[data-play]"),
+          card = e.target.closest(".card");
+        if (fav) {
+          e.stopPropagation();
+          const t = (state.showFavs ? favs : state.tracks).find(
+            (x) => String(x.id) === String(fav.dataset.fav),
+          );
+          if (t) toggleFav(t);
+          return;
+        }
+        const id = (play || card)?.dataset.play || card?.dataset.id;
+        if (!id) return;
+        const t = (state.showFavs ? favs : state.tracks).find(
+          (x) => x.id === id,
+        );
+        if (!t) return;
+        if (state.current?.id === t.id) {
+          state.playing ? audio.pause() : audio.play();
+        } else playTrack(t);
+      });
+
+      $("#moodPicker").addEventListener("click", (e) => {
+        const b = e.target.closest("button[data-mood]");
+        if (!b) return;
+        state.mood = b.dataset.mood;
+        state.query = "";
+        state.showFavs = false;
+        document.documentElement.dataset.mood = state.mood;
+        localStorage.setItem(MOOD_KEY, state.mood);
+        document
+          .querySelectorAll("#moodPicker button")
+          .forEach((x) => x.classList.toggle("active", x === b));
+        load();
+      });
+
+      $("#searchForm").addEventListener("submit", (e) => {
+        e.preventDefault();
+        state.query = $("#searchInput").value.trim();
+        state.showFavs = false;
+        load();
+      });
+      $("#playBtn").addEventListener("click", () => {
+        if (!state.current) return;
+        state.playing ? audio.pause() : audio.play();
+      });
+      $("#prevBtn").addEventListener("click", () => step(-1));
+      $("#nextBtn").addEventListener("click", () => step(1));
+
+      const menu = $("#profileMenu");
+      $("#avatarBtn").addEventListener("click", (e) => {
+        e.stopPropagation();
+        menu.classList.toggle("open");
+      });
+      document.addEventListener("click", () => menu.classList.remove("open"));
+      $("#showFavBtn").addEventListener("click", () => {
+        state.showFavs = true;
+        render();
+        menu.classList.remove("open");
+      });
+      $("#clearBtn").addEventListener("click", async () => {
+        if (!confirm("Clear all favorites?")) return;
+        if (state.user) {
+          await sb.from("favorites").delete().eq("user_id", state.user.id);
+        }
+        favs = [];
+        saveFavsLocal(favs);
+        render();
+        menu.classList.remove("open");
+      });
+
+      // FIX 3: signinBtn correctly handles both sign-in and sign-out
+      $("#signinBtn").addEventListener("click", () => {
+        if (state.user) {
+          sb.auth.signOut();
+          menu.classList.remove("open");
+        } else openModal("signin");
+      });
+
+      /* ── AUTH MODAL ── */
+      let authMode = "signin";
+      function openModal(mode) {
+        authMode = mode;
+        menu.classList.remove("open");
+        $("#modalTitle").textContent =
+          mode === "signin" ? "Welcome back" : "Create an account";
+        $("#modalSub").textContent =
+          mode === "signin"
+            ? "Sign in to sync your favorites across devices."
+            : "Sign up to save your library to the cloud.";
+        $("#modalSubmit").textContent =
+          mode === "signin" ? "Sign in" : "Sign up";
+        $("#modalError").textContent = "";
+        $("#modalError").style.color = "#fb7185";
+        $("#modalEmail").value = "";
+        $("#modalPass").value = "";
+        $("#modalFooter").innerHTML =
+          mode === "signin"
+            ? `Don't have an account? <button id="modalToggle">Create account</button>`
+            : `Have an account? <button id="modalToggle">Sign in</button>`;
+        $("#modalToggle").addEventListener("click", () =>
+          openModal(mode === "signin" ? "signup" : "signin"),
+        );
+        $("#authBackdrop").classList.add("open");
+        setTimeout(() => $("#modalEmail").focus(), 100);
+      }
+      function closeModal() {
+        $("#authBackdrop").classList.remove("open");
+      }
+      $("#modalClose").addEventListener("click", closeModal);
+      $("#authBackdrop").addEventListener("click", (e) => {
+        if (e.target === $("#authBackdrop")) closeModal();
+      });
+      document.addEventListener("keydown", (e) => {
+        if (e.key === "Escape") closeModal();
+      });
+
+      $("#modalSubmit").addEventListener("click", async () => {
+        const email = $("#modalEmail").value.trim();
+        const pass = $("#modalPass").value;
+        const errEl = $("#modalError");
+        const btn = $("#modalSubmit");
+        if (!email || !pass) {
+          errEl.textContent = "Please fill in all fields.";
+          return;
+        }
+        btn.disabled = true;
+        btn.textContent = "Please wait…";
+        errEl.textContent = "";
+        try {
+          let error;
+          if (authMode === "signin") {
+            ({ error } = await sb.auth.signInWithPassword({
+              email,
+              password: pass,
+            }));
+          } else {
+            ({ error } = await sb.auth.signUp({ email, password: pass }));
+          }
+          if (error) {
+            errEl.textContent = error.message;
+          } else {
+            if (authMode === "signup") {
+              errEl.style.color = "var(--primary)";
+              errEl.textContent = "✓ Check your email to confirm your account!";
+              setTimeout(closeModal, 3000);
+            } else {
+              closeModal();
+            }
+          }
+        } catch (e) {
+          errEl.textContent = String(e);
+        } finally {
+          btn.disabled = false;
+          btn.textContent = authMode === "signin" ? "Sign in" : "Sign up";
+        }
+      });
+
+      syncPlayIcon();
+      syncFavBtn();
+      load();
+    </script>
+  </body>
 </html>
